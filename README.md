@@ -1,4 +1,6 @@
-# app-architecture-plugin
+# composure
+
+*Go with the grain — write composed, decomposed code.*
 
 **Build clean, decomposed, well-structured applications — automatically.**
 
@@ -38,7 +40,7 @@ The plugin is stack-aware but framework-agnostic in its core quality rules. The 
 ## Installation
 
 ```bash
-claude plugin add github:hrconsultnj/app-architecture-plugin
+claude plugin add github:hrconsultnj/composure
 ```
 
 Restart Claude Code after installation.

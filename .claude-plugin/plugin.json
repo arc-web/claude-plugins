@@ -1,5 +1,5 @@
 {
-  "name": "app-architecture",
+  "name": "composure",
   "description": "Multi-tenant SaaS architecture plugin with decomposition enforcement, code quality hooks, and task tracking. Includes PreToolUse skill auto-trigger, PostToolUse code quality detection, and severity-grouped task queue.",
   "version": "1.0.0",
   "author": {

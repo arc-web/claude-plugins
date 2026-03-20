@@ -1,0 +1,21 @@
+{
+  "name": "composure",
+  "owner": {
+    "name": "Helder Rodrigues",
+    "email": "helder@hrconsultnj.com"
+  },
+  "metadata": {
+    "description": "Code quality enforcement plugin — decomposition hooks, architecture skills, severity-tracked task queue. Go with the grain.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "composure",
+      "source": "./",
+      "description": "Code quality enforcement plugin — decomposition hooks, architecture skills, severity-tracked task queue",
+      "version": "1.0.0",
+      "category": "development",
+      "keywords": ["architecture", "decomposition", "code-quality", "hooks", "typescript", "react", "next-js"]
+    }
+  ]
+}
