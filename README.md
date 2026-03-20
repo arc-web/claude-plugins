@@ -26,7 +26,7 @@ This plugin changes how Claude Code writes and maintains code:
 
 Developers building production applications with:
 
-- **Next.js 15+** (App Router, Server Components, Server Actions)
+- **Next.js 16+** (App Router, Server Components, Server Actions)
 - **React Native / Expo** (mobile apps with shared codebases)
 - **TypeScript** (strict, type-safe development)
 - **Supabase** (PostgreSQL + Auth + Realtime)
