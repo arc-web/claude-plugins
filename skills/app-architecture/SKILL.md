@@ -71,22 +71,22 @@ Ask these 4 questions IN ORDER:
 
 | Pattern | When to Use | Reference File |
 |---------|-------------|----------------|
-| Entity Registry | Store flexible relationships | [01-entity-registry-feed.md](references/data-patterns/01-entity-registry-feed.md) |
-| ID Prefixes | All database tables | [02-id-prefix-convention.md](references/data-patterns/02-id-prefix-convention.md) |
-| 4-Level Auth | Access requirements | [03-four-level-auth.md](references/data-patterns/03-four-level-auth.md) |
-| Privacy Groups | Permission hierarchy | [04-privacy-role-system.md](references/data-patterns/04-privacy-role-system.md) |
-| Contact-First | User-account linking | [05-contact-first-pattern.md](references/data-patterns/05-contact-first-pattern.md) |
-| Query Keys | TanStack Query caching | [06-query-key-conventions.md](references/data-patterns/06-query-key-conventions.md) |
-| Components | Single modal, extend-not-rewrite | [07-component-patterns.md](references/data-patterns/07-component-patterns.md) |
-| Metadata | JSONB templates | [08-metadata-templates.md](references/data-patterns/08-metadata-templates.md) |
-| SSR Hydration | Layout auth + prefetch | [09-ssr-hydration-layout.md](references/ui-patterns/09-ssr-hydration-layout.md) |
-| Decomposition | No 1000+ line files | [10-component-decomposition.md](references/ui-patterns/10-component-decomposition.md) |
-| Route Groups | Auth levels in URLs | [11-route-groups.md](references/ui-patterns/11-route-groups.md) |
-| Tabs & Views | External config, view modes | [12-tabs-and-views.md](references/ui-patterns/12-tabs-and-views.md) |
-| Icon Patterns | Safe wrapper, dynamic icons (RN) | [13-icon-patterns.md](references/ui-patterns/13-icon-patterns.md) |
-| Bottom Sheet Sizing | Dynamic sizing, conditional render (RN) | [14-bottom-sheet-dynamic-sizing.md](references/ui-patterns/14-bottom-sheet-dynamic-sizing.md) |
+| Entity Registry | Store flexible relationships | [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md) |
+| ID Prefixes | All database tables | [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md) |
+| 4-Level Auth | Access requirements | [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md) |
+| Privacy Groups | Permission hierarchy | [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md) |
+| Contact-First | User-account linking | [05-contact-first-pattern.md](references/private/data-patterns/05-contact-first-pattern.md) |
+| Query Keys | TanStack Query caching | [06-query-key-conventions.md](references/private/data-patterns/06-query-key-conventions.md) |
+| Components | Single modal, extend-not-rewrite | [07-component-patterns.md](references/private/data-patterns/07-component-patterns.md) |
+| Metadata | JSONB templates | [08-metadata-templates.md](references/private/data-patterns/08-metadata-templates.md) |
+| SSR Hydration | Layout auth + prefetch | [09-ssr-hydration-layout.md](references/universal/ui-patterns/09-ssr-hydration-layout.md) |
+| Decomposition | No 1000+ line files | [10-component-decomposition.md](references/universal/ui-patterns/10-component-decomposition.md) |
+| Route Groups | Auth levels in URLs | [11-route-groups.md](references/universal/ui-patterns/11-route-groups.md) |
+| Tabs & Views | External config, view modes | [12-tabs-and-views.md](references/universal/ui-patterns/12-tabs-and-views.md) |
+| Icon Patterns | Safe wrapper, dynamic icons (RN) | [13-icon-patterns.md](references/universal/ui-patterns/13-icon-patterns.md) |
+| Bottom Sheet Sizing | Dynamic sizing, conditional render (RN) | [14-bottom-sheet-dynamic-sizing.md](references/universal/ui-patterns/14-bottom-sheet-dynamic-sizing.md) |
 | Native Modules | No-op stubs, config plugins, phased SDK (RN) | [~/.claude/examples/mobile-patterns/10-native-modules.md](~/.claude/examples/mobile-patterns/10-native-modules.md) |
-| Custom UI Components | Themed controls, BottomSheetModal, DateNavigator, calendar, SearchPickerModal (RN) | [15-custom-ui-components.md](references/ui-patterns/15-custom-ui-components.md) |
+| Custom UI Components | Themed controls, BottomSheetModal, DateNavigator, calendar, SearchPickerModal (RN) | [15-custom-ui-components.md](references/universal/ui-patterns/15-custom-ui-components.md) |
 
 ---
 
@@ -133,7 +133,7 @@ CREATE POLICY "tenant_isolation_{table_name}"
   USING (account_id = auth.jwt() ->> 'account_id');
 ```
 
-**Deep Dive**: See [references/rls-policies/](references/rls-policies/) for complete RLS patterns.
+**Deep Dive**: See [references/private/rls-policies/](references/private/rls-policies/) for complete RLS patterns.
 
 ---
 
@@ -156,7 +156,7 @@ CREATE POLICY "tenant_isolation_{table_name}"
 | Tenant (1) | `contact_id` SET → derive from contact |
 | External (2) | `contact_id` SET → derive from contact |
 
-**Deep Dive**: See [references/data-patterns/03-four-level-auth.md](references/data-patterns/03-four-level-auth.md)
+**Deep Dive**: See [references/private/data-patterns/03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md)
 
 ---
 
@@ -198,7 +198,7 @@ export const buildingKeys = {
 }
 ```
 
-**Deep Dive**: See [references/data-patterns/06-query-key-conventions.md](references/data-patterns/06-query-key-conventions.md)
+**Deep Dive**: See [references/private/data-patterns/06-query-key-conventions.md](references/private/data-patterns/06-query-key-conventions.md)
 
 ---
 
@@ -256,7 +256,7 @@ export function useCreateBuilding(accountId: string) {
 }
 ```
 
-**Deep Dive**: See [references/hooks/](references/hooks/) and [references/tanstack-query/](references/tanstack-query/)
+**Deep Dive**: See [references/universal/hooks/](references/universal/hooks/) and [references/universal/tanstack-query/](references/universal/tanstack-query/)
 
 ---
 
@@ -294,7 +294,7 @@ export default async function ProtectedLayout({ children }) {
 }
 ```
 
-**Deep Dive**: See [references/ui-patterns/09-ssr-hydration-layout.md](references/ui-patterns/09-ssr-hydration-layout.md)
+**Deep Dive**: See [references/universal/ui-patterns/09-ssr-hydration-layout.md](references/universal/ui-patterns/09-ssr-hydration-layout.md)
 
 ---
 
@@ -371,7 +371,7 @@ export default function BuildingsPage({ params }) {
 }
 ```
 
-**Deep Dive**: See [references/ui-patterns/10-component-decomposition.md](references/ui-patterns/10-component-decomposition.md)
+**Deep Dive**: See [references/universal/ui-patterns/10-component-decomposition.md](references/universal/ui-patterns/10-component-decomposition.md)
 
 ---
 
@@ -419,7 +419,7 @@ export default function BuildingsLayout({ children, params }) {
 }
 ```
 
-**Deep Dive**: See [references/ui-patterns/11-route-groups.md](references/ui-patterns/11-route-groups.md) and [references/ui-patterns/12-tabs-and-views.md](references/ui-patterns/12-tabs-and-views.md)
+**Deep Dive**: See [references/universal/ui-patterns/11-route-groups.md](references/universal/ui-patterns/11-route-groups.md) and [references/universal/ui-patterns/12-tabs-and-views.md](references/universal/ui-patterns/12-tabs-and-views.md)
 
 ### Mobile Navigation (expo-router) — Critical Rules
 
@@ -666,37 +666,37 @@ These tools work together as part of the architecture workflow. They are also av
 ## Resources
 
 ### Data & Auth Patterns (1-8)
-- [01-entity-registry-feed.md](references/data-patterns/01-entity-registry-feed.md)
-- [02-id-prefix-convention.md](references/data-patterns/02-id-prefix-convention.md)
-- [03-four-level-auth.md](references/data-patterns/03-four-level-auth.md)
-- [04-privacy-role-system.md](references/data-patterns/04-privacy-role-system.md)
-- [05-contact-first-pattern.md](references/data-patterns/05-contact-first-pattern.md)
-- [06-query-key-conventions.md](references/data-patterns/06-query-key-conventions.md)
-- [07-component-patterns.md](references/data-patterns/07-component-patterns.md)
-- [08-metadata-templates.md](references/data-patterns/08-metadata-templates.md)
+- [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md)
+- [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md)
+- [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md)
+- [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md)
+- [05-contact-first-pattern.md](references/private/data-patterns/05-contact-first-pattern.md)
+- [06-query-key-conventions.md](references/private/data-patterns/06-query-key-conventions.md)
+- [07-component-patterns.md](references/private/data-patterns/07-component-patterns.md)
+- [08-metadata-templates.md](references/private/data-patterns/08-metadata-templates.md)
 
 ### UI & Architecture Patterns (9-15)
-- [09-ssr-hydration-layout.md](references/ui-patterns/09-ssr-hydration-layout.md)
-- [10-component-decomposition.md](references/ui-patterns/10-component-decomposition.md)
-- [11-route-groups.md](references/ui-patterns/11-route-groups.md)
-- [12-tabs-and-views.md](references/ui-patterns/12-tabs-and-views.md)
-- [13-icon-patterns.md](references/ui-patterns/13-icon-patterns.md)
-- [14-bottom-sheet-dynamic-sizing.md](references/ui-patterns/14-bottom-sheet-dynamic-sizing.md)
-- [15-custom-ui-components.md](references/ui-patterns/15-custom-ui-components.md) — Themed controls replacing native: CalendarPickerSheet, DateNavigator, TagSheet, BrandedDialog, SearchPickerModal (address-picker autocomplete), BottomSheetModal patterns
+- [09-ssr-hydration-layout.md](references/universal/ui-patterns/09-ssr-hydration-layout.md)
+- [10-component-decomposition.md](references/universal/ui-patterns/10-component-decomposition.md)
+- [11-route-groups.md](references/universal/ui-patterns/11-route-groups.md)
+- [12-tabs-and-views.md](references/universal/ui-patterns/12-tabs-and-views.md)
+- [13-icon-patterns.md](references/universal/ui-patterns/13-icon-patterns.md)
+- [14-bottom-sheet-dynamic-sizing.md](references/universal/ui-patterns/14-bottom-sheet-dynamic-sizing.md)
+- [15-custom-ui-components.md](references/universal/ui-patterns/15-custom-ui-components.md) — Themed controls replacing native: CalendarPickerSheet, DateNavigator, TagSheet, BrandedDialog, SearchPickerModal (address-picker autocomplete), BottomSheetModal patterns
 
 ### TanStack Query Deep Dives
-- [references/tanstack-query/quick-reference.md](references/tanstack-query/quick-reference.md)
-- [references/tanstack-query/pattern-guide.md](references/tanstack-query/pattern-guide.md)
-- [references/tanstack-query/pattern-examples.md](references/tanstack-query/pattern-examples.md)
+- [references/universal/tanstack-query/quick-reference.md](references/universal/tanstack-query/quick-reference.md)
+- [references/universal/tanstack-query/pattern-guide.md](references/universal/tanstack-query/pattern-guide.md)
+- [references/universal/tanstack-query/pattern-examples.md](references/universal/tanstack-query/pattern-examples.md)
 
 ### RLS & Database Security
-- [references/rls-policies/rls-patterns.md](references/rls-policies/rls-patterns.md)
-- [references/rls-policies/role-hierarchy.md](references/rls-policies/role-hierarchy.md)
-- [references/rls-policies/migration-checklist.md](references/rls-policies/migration-checklist.md)
+- [references/private/rls-policies/rls-patterns.md](references/private/rls-policies/rls-patterns.md)
+- [references/private/rls-policies/role-hierarchy.md](references/private/rls-policies/role-hierarchy.md)
+- [references/private/rls-policies/migration-checklist.md](references/private/rls-policies/migration-checklist.md)
 
 ### Query Hook Generation
-- [references/hooks/common-patterns.md](references/hooks/common-patterns.md)
-- [references/hooks/multi-tenant-patterns.md](references/hooks/multi-tenant-patterns.md)
+- [references/universal/hooks/common-patterns.md](references/universal/hooks/common-patterns.md)
+- [references/universal/hooks/multi-tenant-patterns.md](references/universal/hooks/multi-tenant-patterns.md)
 
 ### Mobile Native Modules
 - [~/.claude/examples/mobile-patterns/10-native-modules.md](~/.claude/examples/mobile-patterns/10-native-modules.md) — No-op stub pattern, config plugins, phased SDK integration
