@@ -1,0 +1,3 @@
+[submodule "skills/app-architecture/references/private"]
+	path = skills/app-architecture/references/private
+	url = https://github.com/hrconsultnj/architecture-data-patterns.git
