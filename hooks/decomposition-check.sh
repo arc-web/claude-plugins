@@ -1,15 +1,15 @@
 #!/bin/bash
 # ============================================================
-# Code Quality Guard v3 — Global PostToolUse Hook
+# Code Quality Guard v4 — Global PostToolUse Hook
 # ============================================================
 # Fires after Edit/Write on source files.
 #
-# v3 CHANGES (from v2):
-#   - Logs findings as TASKS to .claude-tasks.md instead of
-#     interrupting with detailed systemMessages
-#   - Returns brief "task logged" message — no chain-of-thought break
-#   - NEW: Detects shared-type duplication (@cipher/shared)
-#   - Deduplicates: skips files already in the task queue
+# v4 CHANGES (from v3):
+#   - Graph-aware: queries .code-review-graph/graph.db for exact
+#     AST-based function sizes when available (tree-sitter precision)
+#   - Falls back to regex heuristics when graph doesn't exist
+#   - Matcher changed from Read|Edit|Write to Edit|Write
+#     (scanning on Read adds latency without benefit)
 #
 # Non-blocking (exit 0 always). Timeout: 10 seconds.
 # ============================================================
@@ -75,48 +75,73 @@ case "$BASENAME" in
 esac
 
 # ── 1. Find large functions/components ──
-# (same detection logic as v2 — find top-level declarations, measure spans)
+# Strategy: Use graph DB (exact AST sizes) if available, fall back to regex heuristics.
 LARGE_FUNCS=""
 LARGE_FUNC_COUNT=0
 
-FUNC_DECLS=$(grep -nE '^(export[[:space:]]+)?(default[[:space:]]+)?(async[[:space:]]+)?function[[:space:]]+[A-Za-z_]\w*' "$FILE_PATH" 2>/dev/null | head -20)
-ARROW_DECLS=$(grep -nE '^(export[[:space:]]+)?(const|let)[[:space:]]+[A-Za-z_]\w*[[:space:]]*:[[:space:]]*React\.(FC|memo|forwardRef)' "$FILE_PATH" 2>/dev/null | head -10)
-ARROW_ASSIGN=$(grep -nE '^(export[[:space:]]+)?(const|let)[[:space:]]+[A-Za-z_]\w*[[:space:]]*=[[:space:]]*(memo\(|forwardRef\(|\([[:space:]]*[\{)]|\([[:space:]]*props|\([[:space:]]*\)|\([[:space:]]*[a-z]\w*[[:space:],):]|function[[:space:]]*\(|\<\w)' "$FILE_PATH" 2>/dev/null | head -10)
-ARROW_DECLS=$(printf '%s\n%s' "$ARROW_DECLS" "$ARROW_ASSIGN" | grep -v '^$')
-FUNC_LINES=$(printf '%s\n%s' "$FUNC_DECLS" "$ARROW_DECLS" | grep -v '^$' | sort -t: -k1,1n | head -30)
+GRAPH_DB="${CLAUDE_PROJECT_DIR}/.code-review-graph/graph.db"
+ABS_FILE_PATH=$(cd "$(dirname "$FILE_PATH")" 2>/dev/null && echo "$(pwd)/$(basename "$FILE_PATH")")
+[ -z "$ABS_FILE_PATH" ] && ABS_FILE_PATH="$FILE_PATH"
 
-if [ -n "$FUNC_LINES" ]; then
-  PREV_LINE=0
-  PREV_NAME=""
-  while IFS= read -r line; do
-    LNUM=$(echo "$line" | cut -d: -f1 | tr -d ' ')
-    CODE=$(echo "$line" | cut -d: -f2-)
-    FNAME=""
-    if echo "$CODE" | grep -qE 'function[[:space:]]+[A-Za-z_]'; then
-      FNAME=$(echo "$CODE" | sed -E 's/.*function[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*/\1/')
-    fi
-    if [ -z "$FNAME" ] || [ "$FNAME" = "$CODE" ]; then
-      FNAME=$(echo "$CODE" | sed -E 's/.*(const|let)[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*/\2/')
-    fi
-    [ -z "$FNAME" ] || [ "$FNAME" = "$CODE" ] && FNAME="unknown"
+if [ -f "$GRAPH_DB" ] && command -v sqlite3 >/dev/null 2>&1; then
+  # ── Graph-aware path: exact function sizes from tree-sitter AST ──
+  GRAPH_RESULTS=$(sqlite3 "$GRAPH_DB" \
+    "SELECT name, line_start, line_end, (line_end - line_start + 1) as lines
+     FROM nodes
+     WHERE file_path = '${ABS_FILE_PATH}'
+       AND kind IN ('Function', 'Test', 'Class')
+       AND (line_end - line_start + 1) >= ${FUNC_MAX_LINES}
+     ORDER BY lines DESC
+     LIMIT 10" 2>/dev/null)
 
-    if [ "$PREV_LINE" -gt 0 ] && [ "$LNUM" -gt "$PREV_LINE" ]; then
-      FUNC_SIZE=$((LNUM - PREV_LINE))
+  if [ -n "$GRAPH_RESULTS" ]; then
+    while IFS='|' read -r fname lstart lend flines; do
+      [ -z "$fname" ] && continue
+      LARGE_FUNCS="${LARGE_FUNCS}  - EXTRACT: \`${fname}\` (lines ${lstart}-${lend}, ~${flines} lines)\n"
+      LARGE_FUNC_COUNT=$((LARGE_FUNC_COUNT + 1))
+    done <<< "$GRAPH_RESULTS"
+  fi
+else
+  # ── Regex fallback: heuristic function size estimation ──
+  FUNC_DECLS=$(grep -nE '^(export[[:space:]]+)?(default[[:space:]]+)?(async[[:space:]]+)?function[[:space:]]+[A-Za-z_]\w*' "$FILE_PATH" 2>/dev/null | head -20)
+  ARROW_DECLS=$(grep -nE '^(export[[:space:]]+)?(const|let)[[:space:]]+[A-Za-z_]\w*[[:space:]]*:[[:space:]]*React\.(FC|memo|forwardRef)' "$FILE_PATH" 2>/dev/null | head -10)
+  ARROW_ASSIGN=$(grep -nE '^(export[[:space:]]+)?(const|let)[[:space:]]+[A-Za-z_]\w*[[:space:]]*=[[:space:]]*(memo\(|forwardRef\(|\([[:space:]]*[\{)]|\([[:space:]]*props|\([[:space:]]*\)|\([[:space:]]*[a-z]\w*[[:space:],):]|function[[:space:]]*\(|\<\w)' "$FILE_PATH" 2>/dev/null | head -10)
+  ARROW_DECLS=$(printf '%s\n%s' "$ARROW_DECLS" "$ARROW_ASSIGN" | grep -v '^$')
+  FUNC_LINES=$(printf '%s\n%s' "$FUNC_DECLS" "$ARROW_DECLS" | grep -v '^$' | sort -t: -k1,1n | head -30)
+
+  if [ -n "$FUNC_LINES" ]; then
+    PREV_LINE=0
+    PREV_NAME=""
+    while IFS= read -r line; do
+      LNUM=$(echo "$line" | cut -d: -f1 | tr -d ' ')
+      CODE=$(echo "$line" | cut -d: -f2-)
+      FNAME=""
+      if echo "$CODE" | grep -qE 'function[[:space:]]+[A-Za-z_]'; then
+        FNAME=$(echo "$CODE" | sed -E 's/.*function[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*/\1/')
+      fi
+      if [ -z "$FNAME" ] || [ "$FNAME" = "$CODE" ]; then
+        FNAME=$(echo "$CODE" | sed -E 's/.*(const|let)[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*/\2/')
+      fi
+      [ -z "$FNAME" ] || [ "$FNAME" = "$CODE" ] && FNAME="unknown"
+
+      if [ "$PREV_LINE" -gt 0 ] && [ "$LNUM" -gt "$PREV_LINE" ]; then
+        FUNC_SIZE=$((LNUM - PREV_LINE))
+        if [ "$FUNC_SIZE" -ge "$FUNC_MAX_LINES" ]; then
+          PREV_END=$((LNUM - 1))
+          LARGE_FUNCS="${LARGE_FUNCS}  - EXTRACT: \`${PREV_NAME}\` (lines ${PREV_LINE}-${PREV_END}, ~${FUNC_SIZE} lines)\n"
+          LARGE_FUNC_COUNT=$((LARGE_FUNC_COUNT + 1))
+        fi
+      fi
+      PREV_LINE=$LNUM
+      PREV_NAME=$FNAME
+    done <<< "$FUNC_LINES"
+
+    if [ "$PREV_LINE" -gt 0 ]; then
+      FUNC_SIZE=$((LINE_COUNT - PREV_LINE + 1))
       if [ "$FUNC_SIZE" -ge "$FUNC_MAX_LINES" ]; then
-        PREV_END=$((LNUM - 1))
-        LARGE_FUNCS="${LARGE_FUNCS}  - EXTRACT: \`${PREV_NAME}\` (lines ${PREV_LINE}-${PREV_END}, ~${FUNC_SIZE} lines)\n"
+        LARGE_FUNCS="${LARGE_FUNCS}  - EXTRACT: \`${PREV_NAME}\` (lines ${PREV_LINE}-${LINE_COUNT}, ~${FUNC_SIZE} lines)\n"
         LARGE_FUNC_COUNT=$((LARGE_FUNC_COUNT + 1))
       fi
-    fi
-    PREV_LINE=$LNUM
-    PREV_NAME=$FNAME
-  done <<< "$FUNC_LINES"
-
-  if [ "$PREV_LINE" -gt 0 ]; then
-    FUNC_SIZE=$((LINE_COUNT - PREV_LINE + 1))
-    if [ "$FUNC_SIZE" -ge "$FUNC_MAX_LINES" ]; then
-      LARGE_FUNCS="${LARGE_FUNCS}  - EXTRACT: \`${PREV_NAME}\` (lines ${PREV_LINE}-${LINE_COUNT}, ~${FUNC_SIZE} lines)\n"
-      LARGE_FUNC_COUNT=$((LARGE_FUNC_COUNT + 1))
     fi
   fi
 fi

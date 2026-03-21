@@ -1,7 +1,7 @@
 ---
 name: review-tasks
-description: Review and process accumulated code quality tasks from tasks-plans/tasks.md and tasks-plans/. Tasks are auto-logged by the PostToolUse hook and decomposition audits. Supports batch processing, delegation to sub-agents, and auto-creation of TaskCreate entries.
-argument-hint: "[batch|delegate|clean|summary|sync]"
+description: Review and process accumulated code quality tasks from tasks-plans/tasks.md and tasks-plans/. Tasks are auto-logged by the PostToolUse hook and decomposition audits. Supports batch processing, delegation to sub-agents, verification, and archiving.
+argument-hint: "[batch|delegate|clean|summary|sync|verify|archive]"
 ---
 
 # Review Code Quality Tasks
@@ -104,7 +104,26 @@ Also creates TaskCreate entries for Critical/High items so they're visible.
    - Update TaskCreate status to `completed`
    - Run typecheck on the affected files
 
-#### `clean` — Remove resolved tasks
+#### `verify` — Check file sizes against audit items, mark done
+1. Read all open tasks (`- [ ]`) from `tasks-plans/tasks.md` and `tasks-plans/*.md`
+2. For each DECOMPOSE task, check the **current file size** using `wc -l`:
+   - If the file is now under its limit → mark `[x]` with `✅ {date}` and current size
+   - If the file was split into new files → verify the new files exist, mark `[x]`
+   - If still over limit → leave `[ ]`, report remaining delta
+3. For each EXTRACT task, check if the target file exists (e.g., `types.ts`, `serialization.ts`)
+4. Update both `tasks-plans/tasks.md` AND matching `tasks-plans/*.md` audit files
+5. Report: verified N items, M completed, K remaining
+6. If all items in an audit file are `[x]` → suggest running `/review-tasks archive`
+
+**Spawn as sub-agent**: This mode should use an Agent (subagent_type: "general-purpose") to run the verification in parallel if there are 5+ open items. The agent reads each file, checks sizes, and returns a verification report.
+
+#### `archive` — Move completed audits, reset task queue
+1. Find all `tasks-plans/*.md` files (excluding `tasks.md`) where **every** `- [ ]` is now `- [x]`
+2. Move fully-completed audit files to `tasks-plans/archived/` (create dir if needed)
+3. Clear `tasks-plans/tasks.md`: keep lines 1-4 (header + comments + blank), remove everything after
+4. Report: archived N audit files, cleared task queue
+
+#### `clean` — Remove resolved tasks (without archiving)
 1. Remove all lines with `- [x]` from `tasks-plans/tasks.md`
 2. Update checked items in `tasks-plans/` files
 3. Report how many tasks were cleaned
