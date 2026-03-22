@@ -1,6 +1,6 @@
 ---
 name: app-architecture
-description: Complete architecture guide for building multi-tenant SaaS features from database to UI. Use when creating new features, pages, components, database tables, query hooks, or understanding architectural patterns. Covers entity registry, ID prefixes, auth model, RLS policies, TanStack Query, SSR hydration, route groups, and component patterns.
+description: Complete architecture guide for building multi-tenant SaaS features from database to UI. Use when creating new features, pages, components, database tables, query hooks, or understanding architectural patterns. Covers multi-tenant isolation, auth model, TanStack Query, SSR hydration, route groups, decomposition, and component patterns.
 ---
 
 # App Architecture - Complete Feature Building Guide
@@ -69,16 +69,30 @@ Ask these 4 questions IN ORDER:
 
 ## Pattern Reference Map
 
+### Data & Auth Patterns
+
+These patterns have full implementation references (migration templates, RLS policies, trigger functions, role hierarchies) available in `references/private/`. If the private references are not populated, the conceptual guidance below and in the phase sections is designed to be fully usable on its own — Claude will follow these patterns based on the descriptions here.
+
+| Pattern | When to Use | Private Reference |
+|---------|-------------|-------------------|
+| Entity Registry | Store flexible relationships between tenants and resources | [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md) |
+| ID Prefixes | Human-readable identifiers on all database tables | [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md) |
+| Multi-Level Auth | Layered access control (user → role → privacy → account) | [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md) |
+| Privacy Groups | Permission hierarchy controlling how users link to accounts | [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md) |
+| Contact-First | User-account linking via contact records for external users | [05-contact-first-pattern.md](references/private/data-patterns/05-contact-first-pattern.md) |
+| Metadata | Flexible JSONB columns with typed templates | [08-metadata-templates.md](references/private/data-patterns/08-metadata-templates.md) |
+
+RLS & database security references (also in `references/private/`):
+- [rls-patterns.md](references/private/rls-policies/rls-patterns.md) — Complete RLS policy templates
+- [role-hierarchy.md](references/private/rls-policies/role-hierarchy.md) — Role-based access patterns
+- [migration-checklist.md](references/private/rls-policies/migration-checklist.md) — Migration safety checklist
+
+### UI & Architecture Patterns (reference docs included)
+
 | Pattern | When to Use | Reference File |
 |---------|-------------|----------------|
-| Entity Registry | Store flexible relationships | [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md) |
-| ID Prefixes | All database tables | [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md) |
-| 4-Level Auth | Access requirements | [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md) |
-| Privacy Groups | Permission hierarchy | [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md) |
-| Contact-First | User-account linking | [05-contact-first-pattern.md](references/private/data-patterns/05-contact-first-pattern.md) |
-| Query Keys | TanStack Query caching | [06-query-key-conventions.md](references/private/data-patterns/06-query-key-conventions.md) |
-| Components | Single modal, extend-not-rewrite | [07-component-patterns.md](references/private/data-patterns/07-component-patterns.md) |
-| Metadata | JSONB templates | [08-metadata-templates.md](references/private/data-patterns/08-metadata-templates.md) |
+| Query Keys | TanStack Query caching | [06-query-key-conventions.md](references/universal/data-patterns/06-query-key-conventions.md) |
+| Components | Single modal, extend-not-rewrite | [07-component-patterns.md](references/universal/data-patterns/07-component-patterns.md) |
 | SSR Hydration | Layout auth + prefetch | [09-ssr-hydration-layout.md](references/universal/ui-patterns/09-ssr-hydration-layout.md) |
 | Decomposition | No 1000+ line files | [10-component-decomposition.md](references/universal/ui-patterns/10-component-decomposition.md) |
 | Route Groups | Auth levels in URLs | [11-route-groups.md](references/universal/ui-patterns/11-route-groups.md) |
@@ -94,69 +108,26 @@ Ask these 4 questions IN ORDER:
 
 ### Every Table Needs:
 
-1. **ID Prefix Trigger** - `ACC`, `TKT`, `VEH` (not `acc_`, bare UUIDs)
-2. **Feed Field** - Links to `entity_registry` for tenant isolation
-3. **RLS Policies** - Use `!inner()` joins for multi-tenant filtering
-4. **Indexes** - On `feed`, `id_prefix`, and common query fields
+1. **ID Prefix Trigger** — Human-readable prefixes (not bare UUIDs)
+2. **Feed Field** — Links to entity registry for tenant isolation
+3. **RLS Policies** — Row-level security with proper join patterns
+4. **Indexes** — On tenant isolation fields and common query fields
 
-### Migration Template
-
-```sql
--- 1. Create table with feed field
-CREATE TABLE {table_name} (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  id_prefix TEXT NOT NULL,
-  feed UUID NOT NULL REFERENCES entity_registry(entity_id),
-  account_id UUID NOT NULL REFERENCES accounts(id),
-  -- your columns...
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- 2. Add ID prefix trigger
-CREATE TRIGGER set_{table_name}_id_prefix
-  BEFORE INSERT ON {table_name}
-  FOR EACH ROW
-  EXECUTE FUNCTION trigger_set_id_prefix('{PREFIX}');
-
--- 3. Create indexes
-CREATE INDEX idx_{table_name}_feed ON {table_name}(feed);
-CREATE INDEX idx_{table_name}_id_prefix ON {table_name}(id_prefix);
-CREATE INDEX idx_{table_name}_account_id ON {table_name}(account_id);
-
--- 4. Enable RLS
-ALTER TABLE {table_name} ENABLE ROW LEVEL SECURITY;
-
--- 5. Create RLS policy
-CREATE POLICY "tenant_isolation_{table_name}"
-  ON {table_name} FOR ALL
-  USING (account_id = auth.jwt() ->> 'account_id');
-```
-
-**Deep Dive**: See [references/private/rls-policies/](references/private/rls-policies/) for complete RLS patterns.
+> Migration templates, trigger functions, and RLS policy examples are available in the private references. See [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md), [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md), and the [RLS policies directory](references/private/rls-policies/).
 
 ---
 
 ## Phase 2: Auth & Role Model
 
-### 4-Level Auth Hierarchy
+### Multi-Level Auth
 
-```
-1. User exists ──► users table (linked to auth.users)
-2. Role assigned ► user_roles lookup table
-3. Privacy group ► role_privacy lookup table
-4. Account link ─► Direct OR via contact (based on privacy)
-```
+Design your auth with layered access control:
+1. **User exists** — authenticated identity
+2. **Role assigned** — what the user can do
+3. **Privacy group** — what data scope the role grants
+4. **Account link** — how the user connects to tenant data (directly or via contact records)
 
-### Privacy Groups → Account Link
-
-| Privacy Level | Account Link Method |
-|---------------|---------------------|
-| Internal (0) | `account_id` SET DIRECTLY on user |
-| Tenant (1) | `contact_id` SET → derive from contact |
-| External (2) | `contact_id` SET → derive from contact |
-
-**Deep Dive**: See [references/private/data-patterns/03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md)
+> Implementation details for auth levels, privacy group tables, and account linking methods are in the private references. See [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md) and [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md).
 
 ---
 
@@ -198,7 +169,7 @@ export const buildingKeys = {
 }
 ```
 
-**Deep Dive**: See [references/private/data-patterns/06-query-key-conventions.md](references/private/data-patterns/06-query-key-conventions.md)
+**Deep Dive**: See [references/universal/data-patterns/06-query-key-conventions.md](references/universal/data-patterns/06-query-key-conventions.md)
 
 ---
 
@@ -461,10 +432,10 @@ Without `_layout.tsx`, expo-router sees `(dashboard)/index` as the route name, n
 ## Anti-Patterns to Avoid
 
 ### ❌ Database
-- Forgetting ID prefix trigger
-- Missing feed field for tenant isolation
-- RLS without `!inner()` joins
-- Hardcoded UUIDs (query lookup tables instead)
+- Missing human-readable ID prefixes on tables
+- No tenant isolation field linking resources to accounts
+- RLS policies that don't enforce tenant boundaries on joins
+- Hardcoded UUIDs instead of querying lookup tables
 
 ### ❌ Query Hooks
 - Missing accountId in queryKey (cache leak!)
@@ -633,10 +604,10 @@ These tools work together as part of the architecture workflow. They are also av
 ## Complete Feature Checklist
 
 ### Database Layer
-- [ ] Migration with ID prefix trigger
-- [ ] Feed field for entity registry
-- [ ] RLS policy with `!inner()` joins
-- [ ] Indexes on feed, id_prefix, account_id
+- [ ] Migration with human-readable ID prefixes
+- [ ] Tenant isolation field linking resources to accounts
+- [ ] RLS policy enforcing tenant boundaries
+- [ ] Indexes on isolation fields and common query columns
 
 ### Query Layer
 - [ ] Query key factory with accountId
@@ -665,38 +636,46 @@ These tools work together as part of the architecture workflow. They are also av
 
 ## Resources
 
-### Data & Auth Patterns (1-8)
-- [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md)
-- [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md)
-- [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md)
-- [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md)
-- [05-contact-first-pattern.md](references/private/data-patterns/05-contact-first-pattern.md)
-- [06-query-key-conventions.md](references/private/data-patterns/06-query-key-conventions.md)
-- [07-component-patterns.md](references/private/data-patterns/07-component-patterns.md)
-- [08-metadata-templates.md](references/private/data-patterns/08-metadata-templates.md)
+### Included References (`references/universal/`)
 
-### UI & Architecture Patterns (9-15)
+**Data Patterns:**
+- [06-query-key-conventions.md](references/universal/data-patterns/06-query-key-conventions.md) — Account-scoped TanStack Query key factories
+- [07-component-patterns.md](references/universal/data-patterns/07-component-patterns.md) — Single modal, extend-not-rewrite, presentational children
+
+**UI & Architecture Patterns:**
 - [09-ssr-hydration-layout.md](references/universal/ui-patterns/09-ssr-hydration-layout.md)
 - [10-component-decomposition.md](references/universal/ui-patterns/10-component-decomposition.md)
 - [11-route-groups.md](references/universal/ui-patterns/11-route-groups.md)
 - [12-tabs-and-views.md](references/universal/ui-patterns/12-tabs-and-views.md)
 - [13-icon-patterns.md](references/universal/ui-patterns/13-icon-patterns.md)
 - [14-bottom-sheet-dynamic-sizing.md](references/universal/ui-patterns/14-bottom-sheet-dynamic-sizing.md)
-- [15-custom-ui-components.md](references/universal/ui-patterns/15-custom-ui-components.md) — Themed controls replacing native: CalendarPickerSheet, DateNavigator, TagSheet, BrandedDialog, SearchPickerModal (address-picker autocomplete), BottomSheetModal patterns
+- [15-custom-ui-components.md](references/universal/ui-patterns/15-custom-ui-components.md) — Themed controls: CalendarPickerSheet, DateNavigator, TagSheet, BrandedDialog, SearchPickerModal, BottomSheetModal
 
-### TanStack Query Deep Dives
-- [references/universal/tanstack-query/quick-reference.md](references/universal/tanstack-query/quick-reference.md)
-- [references/universal/tanstack-query/pattern-guide.md](references/universal/tanstack-query/pattern-guide.md)
-- [references/universal/tanstack-query/pattern-examples.md](references/universal/tanstack-query/pattern-examples.md)
+**TanStack Query:**
+- [quick-reference.md](references/universal/tanstack-query/quick-reference.md)
+- [pattern-guide.md](references/universal/tanstack-query/pattern-guide.md)
+- [pattern-examples.md](references/universal/tanstack-query/pattern-examples.md)
 
-### RLS & Database Security
-- [references/private/rls-policies/rls-patterns.md](references/private/rls-policies/rls-patterns.md)
-- [references/private/rls-policies/role-hierarchy.md](references/private/rls-policies/role-hierarchy.md)
-- [references/private/rls-policies/migration-checklist.md](references/private/rls-policies/migration-checklist.md)
+**Query Hooks:**
+- [common-patterns.md](references/universal/hooks/common-patterns.md)
+- [multi-tenant-patterns.md](references/universal/hooks/multi-tenant-patterns.md)
 
-### Query Hook Generation
-- [references/universal/hooks/common-patterns.md](references/universal/hooks/common-patterns.md)
-- [references/universal/hooks/multi-tenant-patterns.md](references/universal/hooks/multi-tenant-patterns.md)
-
-### Mobile Native Modules
+**Mobile:**
 - [~/.claude/examples/mobile-patterns/10-native-modules.md](~/.claude/examples/mobile-patterns/10-native-modules.md) — No-op stub pattern, config plugins, phased SDK integration
+
+### Private References (`references/private/`)
+
+Implementation-level documentation with migration templates, RLS policies, trigger functions, and role hierarchies. Available when the `composure-private` submodule is initialized.
+
+**Data & Auth Patterns:**
+- [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md) — Entity registry schema and feed field implementation
+- [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md) — ID prefix triggers and naming conventions
+- [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md) — Complete 4-level auth hierarchy implementation
+- [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md) — Privacy groups and role-based access tables
+- [05-contact-first-pattern.md](references/private/data-patterns/05-contact-first-pattern.md) — Contact-based account linking for external users
+- [08-metadata-templates.md](references/private/data-patterns/08-metadata-templates.md) — JSONB metadata column patterns
+
+**RLS & Database Security:**
+- [rls-patterns.md](references/private/rls-policies/rls-patterns.md) — Complete RLS policy templates
+- [role-hierarchy.md](references/private/rls-policies/role-hierarchy.md) — Role-based access patterns
+- [migration-checklist.md](references/private/rls-policies/migration-checklist.md) — Migration safety checklist
