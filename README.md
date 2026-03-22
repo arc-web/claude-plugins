@@ -261,23 +261,47 @@ Per-project via `.claude/no-bandaids.json` (see above) or run `/init` to auto-ge
 
 ---
 
-## License
+## Licensing
+
+### Community (Free)
 
 **PolyForm Noncommercial 1.0.0** — [Full text](./LICENSE)
 
-Free for personal, educational, and noncommercial use. Attribution required.
+Free for personal, educational, and noncommercial use. Includes the full plugin: all hooks, graph MCP server, all 7 skills, and 15+ universal reference documents.
 
-**Commercial use** — including freelance work, agency projects, and corporate teams — requires a separate license. Contact [hrconsultnj@gmail.com](mailto:hrconsultnj@gmail.com).
+**Allowed:** Personal projects, hobby work, learning, academic research, nonprofit/government use, evaluating before purchase.
 
-**What's allowed without a commercial license:**
-- Personal projects, hobby work, learning
-- Academic and research use
-- Nonprofit and government organizations
-- Evaluating the plugin before purchasing a commercial license
+### Pro ($39 — one-time, per GitHub user)
 
-**What requires a commercial license:**
-- Using the plugin on client/contract work
-- Using the plugin at a for-profit company
-- Distributing modified versions commercially
+**[Purchase Pro License](https://composure.lemonsqueezy.com)** | [Commercial License Terms](./COMMERCIAL-LICENSE.md)
 
-**Contributing:** By submitting a pull request, you grant the licensor the right to license your contribution under these terms and any future license terms for this project.
+Everything in Community, plus:
+
+| | Community (Free) | Pro ($39) |
+|---|---|---|
+| Plugin core (hooks, graph MCP, skills) | Yes | Yes |
+| Universal reference docs (15+) | Yes | Yes |
+| Conceptual architecture (SKILL.md) | Yes | Yes |
+| **Commercial use** | No | **Yes** |
+| **Pro Patterns** (battle-tested data architecture) | No | **Yes** |
+| **RLS & migration patterns** | No | **Yes** |
+| Updates within major version | Yes | **Yes** |
+| Major version upgrades | — | **50% off ($19)** |
+
+**Pro Patterns** include production-proven multi-tenant architecture: entity registry, ID prefix conventions, multi-level auth, privacy/role systems, contact-first patterns, metadata templates, RLS policies, role hierarchies, and migration checklists — delivered via private Git submodule.
+
+**How it works:**
+1. Purchase at the link above
+2. Provide your GitHub username
+3. You're added as a collaborator on the private patterns repo (within 48 hours)
+4. Run `git submodule update --init` in your Composure installation
+
+**Requires a commercial license:** freelance/contract work, agency projects, for-profit company use, redistribution.
+
+### Privacy
+
+Composure runs entirely on your local machine. No data collection, no telemetry, no network requests. [Full privacy policy](./PRIVACY.md).
+
+### Contributing
+
+By submitting a pull request, you grant the licensor the right to license your contribution under these terms and any future license terms for this project.
