@@ -48,6 +48,17 @@ The loaded reference docs define:
 
 **To refresh generated docs:** Run `/composure:init --force`
 
+### /simplify Integration
+
+After editing 5+ source files in a session, the PostToolUse hook will inject a systemMessage asking you to offer `/simplify` to the user. When you receive this message:
+
+1. **Use AskUserQuestion** — ask: "Want me to run /simplify to refine what I just wrote before continuing?"
+2. **Do NOT auto-run** — the user decides
+3. **If yes** — invoke `/simplify` which reviews recently modified code for clarity, consistency, and maintainability
+4. **If no** — continue with the current task
+
+`/simplify` preserves all functionality — it only refines *how* code is written (reduce nesting, remove redundancy, apply project standards), never *what* it does.
+
 ---
 
 ## Overview
