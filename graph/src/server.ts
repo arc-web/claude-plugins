@@ -2,7 +2,7 @@
 /**
  * MCP server for the Composure code-review-graph.
  *
- * Registers 7 tools for building, querying, and reviewing
+ * Registers 8 tools for building, querying, reviewing, and visualizing
  * the code knowledge graph. Uses stdio transport.
  */
 
@@ -17,6 +17,7 @@ import { getImpactRadiusTool } from "./tools/get-impact-radius.js";
 import { findLargeFunctions } from "./tools/find-large-functions.js";
 import { semanticSearchNodes } from "./tools/semantic-search-nodes.js";
 import { listGraphStats } from "./tools/list-graph-stats.js";
+import { generateGraphHtmlTool } from "./tools/generate-graph-html.js";
 
 const server = new McpServer({
   name: "composure-graph",
@@ -247,6 +248,31 @@ server.tool(
   },
   async (params) => {
     const result = listGraphStats(params);
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+    };
+  },
+);
+
+// ── Tool 8: generate_graph_html ──────────────────────────────────
+
+server.tool(
+  "generate_graph_html",
+  "Generate a self-contained HTML visualization of the code knowledge graph. Shows file-level nodes grouped by auto-detected category (Pages, API, Components, Hooks, Lib, etc.) with import edges, search, zoom, and blast-radius highlighting. Output is a single .html file that works offline.",
+  {
+    output_path: z
+      .string()
+      .optional()
+      .describe(
+        "Output file path. Default: .code-review-graph/graph.html",
+      ),
+    repo_root: z
+      .string()
+      .optional()
+      .describe("Repository root path. Auto-detected if omitted."),
+  },
+  async (params) => {
+    const result = generateGraphHtmlTool(params);
     return {
       content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
     };
