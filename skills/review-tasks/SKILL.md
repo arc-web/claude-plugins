@@ -89,8 +89,14 @@ Also creates TaskCreate entries for Critical/High items so they're visible.
 5. Run `pnpm typecheck` after each decomposition to verify
 
 #### `delegate` — Dispatch sub-agents in parallel
+
+**Cowork Enhancement**: In Claude Cowork, sub-agents run as true parallel workers. Cowork automatically manages the fan-out/fan-in pattern — each sub-agent gets its own context and runs concurrently. This can reduce a 30-minute batch to 4-5 minutes.
+
 1. Create TaskCreate entries first (sync step)
-2. Group tasks by independence (files that don't import each other can be done in parallel)
+2. Group tasks by independence using the knowledge graph:
+   - Call `query_graph(pattern="importers_of")` and `query_graph(pattern="imports_of")` for each file
+   - Files that don't import each other can be decomposed in parallel
+   - Files with mutual dependencies must be sequenced
 3. Launch sub-agents for independent groups — **include decomposition details from `tasks-plans/` in the agent prompt**:
    ```
    Agent 1: Decompose create-user-sheet (Critical) — split into 5 step files + orchestrator
@@ -98,11 +104,16 @@ Also creates TaskCreate entries for Critical/High items so they're visible.
    Agent 3: Extract 5 web route files to page clients (High)
    ```
 4. Each sub-agent should:
+   - Use the `decomposition-specialist` agent if available (`/agents` → decomposition-specialist)
    - Invoke the app-architecture skill first
    - Follow the decomposition pattern from the skill
    - Mark the task `[x]` in both `tasks-plans/tasks.md` and `tasks-plans/` when done
    - Update TaskCreate status to `completed`
    - Run typecheck on the affected files
+5. **Fan-in**: After all sub-agents complete, run a final verification:
+   - Call `build_or_update_graph` to refresh the knowledge graph
+   - Call `find_large_functions` to confirm all violations are resolved
+   - Report: N tasks delegated, M completed, K failed (with reasons)
 
 #### `verify` — Check file sizes against audit items, mark done
 1. Read all open tasks (`- [ ]`) from `tasks-plans/tasks.md` and `tasks-plans/*.md`

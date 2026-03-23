@@ -2,11 +2,15 @@
 
 *Go with the grain — write composed, decomposed code.*
 
-A Claude Code plugin that enforces code quality, architectural discipline, and type safety through automated hooks, skills, a code knowledge graph, and a severity-tracked task queue. Prevents monolithic files, blocks type-casting band-aids, provides impact-aware code reviews, and organizes remediation by priority.
+A plugin for **Claude Code** and **Claude Cowork** that enforces code quality, architectural discipline, and type safety through automated hooks, skills, a code knowledge graph, and a severity-tracked task queue. Prevents monolithic files, blocks type-casting band-aids, provides impact-aware code reviews, and organizes remediation by priority.
+
+Works in the terminal (Claude Code) and on the desktop (Claude Cowork) — same plugin, same architecture, extended capabilities.
 
 ---
 
 ## Installation
+
+### Claude Code (CLI)
 
 ```bash
 # Add the marketplace
@@ -18,6 +22,15 @@ claude plugin install composure@composure
 # Restart Claude Code, then run init in your project
 /composure:init
 ```
+
+### Claude Cowork (Desktop)
+
+Install from the Cowork plugin library or upload the plugin directory in Claude Desktop:
+
+1. Open Claude Desktop → Cowork
+2. Click **Plugins** → **Add Plugin** → **Upload**
+3. Select the Composure plugin directory
+4. Run `/composure:init` in a Cowork task
 
 ---
 
@@ -32,13 +45,23 @@ claude plugin install composure@composure
 /composure:review-pr            # PR review with blast-radius analysis
 /composure:review-delta         # Review changes since last commit
 /composure:build-graph          # Build/update code review knowledge graph
+
+# Cowork-enhanced
+/composure:audit                # Quick decomposition scan (command)
+/composure:impact               # Blast radius of current changes (command)
+/composure:tasks                # Task queue summary (command)
+/composure:graph-status         # Graph health check (command)
+/composure:generate-report      # Professional audit report (command)
+/composure:schedule-setup       # Set up recurring tasks (Cowork only)
+/composure:dispatch-workflows   # Dispatch remote control guide (Cowork only)
+/composure:connectors-setup     # Configure GitHub/Slack/Jira connectors
 ```
 
 ---
 
 ## What You Get
 
-### 8 Skills
+### 11 Skills
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
@@ -50,6 +73,9 @@ claude plugin install composure@composure
 | **Build Graph** | `/build-graph` | Build or update the code review knowledge graph for impact analysis. |
 | **Review PR** | `/review-pr` | PR review with blast-radius context from the knowledge graph. |
 | **Review Delta** | `/review-delta` | Token-efficient review of changes since last commit. |
+| **Schedule Setup** | `/schedule-setup` | Configure recurring Composure tasks in Cowork (audits, graph rebuilds, summaries). |
+| **Dispatch Workflows** | `/dispatch-workflows` | Optimized mobile-friendly workflows for Cowork Dispatch remote control. |
+| **Connectors Setup** | `/connectors-setup` | Set up GitHub, Slack, and Jira connectors for automated reporting. |
 
 ### 8 Automated Hooks (3 types)
 
@@ -258,9 +284,70 @@ Per-project via `.claude/no-bandaids.json` (see above) or run `/init` to auto-ge
 
 ---
 
+## Claude Cowork Features
+
+Composure v1.3.0 adds full support for Claude Cowork, unlocking capabilities beyond the terminal.
+
+### Named Agents
+
+Four specialist agents available via `/agents` in Cowork:
+
+| Agent | Purpose | Tools |
+|-------|---------|-------|
+| **architecture-advisor** | Default agent — enforces all Composure rules | Full access |
+| **code-reviewer** | Impact-aware PR/code reviews | Read-only + graph |
+| **decomposition-specialist** | Finds and fixes oversized files | Full access + graph |
+| **type-safety-auditor** | Deep type safety analysis | Read + Edit + graph |
+
+### Quick Commands
+
+Lightweight slash commands (no model invocation needed):
+
+| Command | What It Does |
+|---------|-------------|
+| `/composure:audit` | Quick decomposition scan |
+| `/composure:graph-status` | Graph health and staleness check |
+| `/composure:impact` | Blast radius of current changes |
+| `/composure:tasks` | Task queue summary by severity |
+| `/composure:generate-report` | Professional audit report (markdown/CSV) |
+
+### Scheduled Tasks (Cowork only)
+
+Set up recurring Composure tasks via `/schedule`:
+- **Daily**: Graph freshness check + incremental rebuild
+- **Weekly**: Full decomposition audit with report
+- **Pre-standup**: Task queue summary for team discussion
+
+Run `/composure:schedule-setup` to configure.
+
+### Dispatch (Remote Control)
+
+Control Composure from your phone via Cowork Dispatch:
+- "Code quality status" → compact summary
+- "Run a decomposition audit" → full scan, results as file
+- "Fix security-client.tsx" → remote decomposition
+- "What's the blast radius?" → impact analysis
+
+Run `/composure:dispatch-workflows` for setup and optimized commands.
+
+### Connectors
+
+Integrate with external services for automated reporting:
+- **GitHub**: PR review comments, issue creation for debt
+- **Slack**: Violation alerts, daily summaries
+- **Jira**: Auto-create tickets for critical violations
+
+Run `/composure:connectors-setup` to configure.
+
+### Sub-Agent Parallel Reviews
+
+The `/composure:review-tasks delegate` mode now leverages Cowork's native sub-agent parallelism — tasks that took 30 minutes can finish in 4-5 minutes with parallel workers.
+
+---
+
 ## Requirements
 
-- Claude Code CLI
+- Claude Code CLI **or** Claude Cowork (Desktop)
 - Node.js 22.5+ (for `node:sqlite` and WASM-based code parsers)
 - `jq` (JSON parsing in hooks)
 - `sqlite3` (optional — enables graph-aware decomposition checks)

@@ -1,11 +1,13 @@
 {
   "name": "composure",
-  "description": "Multi-tenant SaaS architecture plugin with decomposition enforcement, code quality hooks, task tracking, and structural code graph for impact-aware reviews.",
-  "version": "1.2.11",
+  "description": "Code quality enforcement — decomposition hooks, architecture skills, impact-aware reviews, severity-tracked task queue. Works in Claude Code and Claude Cowork. Go with the grain.",
+  "version": "1.3.0",
   "author": {
     "name": "Helder Rodrigues",
     "url": "https://github.com/hrconsultnj"
   },
+  "homepage": "https://github.com/hrconsultnj/composure",
+  "repository": "https://github.com/hrconsultnj/composure",
   "license": "SEE LICENSE IN LICENSE",
   "keywords": [
     "architecture",
@@ -13,6 +15,7 @@
     "code-quality",
     "code-review",
     "knowledge-graph",
+    "cowork",
     "multi-tenant",
     "saas",
     "tanstack-query",
