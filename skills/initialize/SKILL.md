@@ -1,10 +1,10 @@
 ---
-name: init
+name: initialize
 description: Detect project stack and generate Composure config (.claude/no-bandaids.json, task queue). Run once per project.
 argument-hint: "[--force] [--dry-run]"
 ---
 
-# Composure Init
+# Composure Initialize
 
 Bootstrap Composure project-level configuration by detecting the tech stack and generating appropriate configs.
 
@@ -14,6 +14,21 @@ Bootstrap Composure project-level configuration by detecting the tech stack and 
 - `--dry-run` — Show what would be generated without writing files
 
 ## Workflow
+
+### Step 0: Ensure Context7 MCP
+
+Context7 provides up-to-date library documentation, which Step 3 uses for stack-specific pattern verification.
+
+1. Check if Context7 is already available by running:
+   ```bash
+   claude mcp list 2>/dev/null | grep -i context7
+   ```
+2. If **not found** (no output or command fails), install it:
+   ```bash
+   claude mcp add context7 -- npx -y @upstash/context7-mcp@latest
+   ```
+3. Report: "Context7 MCP: already installed" or "Context7 MCP: installed"
+4. If the `claude mcp add` command fails (e.g., CLI not available, permissions), note it and continue — Step 3 is optional anyway
 
 ### Step 1: Detect Stack
 

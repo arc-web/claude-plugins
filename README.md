@@ -15,8 +15,8 @@ claude plugin marketplace add hrconsultnj/composure
 # Install the plugin
 claude plugin install composure@composure
 
-# Restart Claude Code, then run init in your project
-/composure:init
+# Restart Claude Code, then run initialize in your project
+/composure:initialize
 ```
 
 ---
@@ -24,7 +24,7 @@ claude plugin install composure@composure
 ## Quick Start
 
 ```
-/composure:init                 # Detect stack, build graph, generate config
+/composure:initialize            # Detect stack, build graph, generate config
 /composure:app-architecture     # Feature-building guide with 25+ reference docs
 /composure:commit               # Commit with auto task queue hygiene
 /composure:decomposition-audit  # Full codebase scan for size violations
@@ -42,7 +42,7 @@ claude plugin install composure@composure
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
-| **Init** | `/init` | Detect project stack, generate config, build graph, create task queue. Run once per project. |
+| **Initialize** | `/initialize` | Detect project stack, generate config, build graph, create task queue. Run once per project. Ensures Context7 MCP is installed. |
 | **App Architecture** | `/app-architecture` | Feature-building guide. Decision trees for rendering, data fetching, multi-tenant patterns. 25+ reference docs. Auto-loaded on every session start. |
 | **Commit** | `/commit` | Commit with task queue hygiene. Auto-cleans resolved tasks, archives completed audits, blocks if staged files have open quality tasks. |
 | **Decomposition Audit** | `/decomposition-audit` | Full codebase scan. Reports Critical (800+), High (400-799), Moderate (200-399) with extraction instructions. |
@@ -109,7 +109,7 @@ Safe patterns that are **not** blocked: `as const`, `satisfies`, generic type pa
 
 ### Per-Project Config
 
-`/init` generates this automatically, or create `.claude/no-bandaids.json` manually:
+`/initialize` generates this automatically, or create `.claude/no-bandaids.json` manually:
 
 ```json
 {
@@ -203,8 +203,8 @@ In monorepo setups, the code quality hook detects inline types that already exis
 ## Workflow
 
 ```
-1. /composure:init
-   → Detects stack, generates config, builds graph, creates task queue
+1. /composure:initialize
+   → Detects stack, generates config, builds graph, ensures Context7, creates task queue
    |
 2. Resume a session
    → SessionStart agent auto-verifies open tasks, checks graph staleness
@@ -254,7 +254,7 @@ Edit hook scripts in `hooks/` to customize:
 
 ### No Band-Aids Config
 
-Per-project via `.claude/no-bandaids.json` (see above) or run `/init` to auto-generate.
+Per-project via `.claude/no-bandaids.json` (see above) or run `/initialize` to auto-generate.
 
 ---
 
