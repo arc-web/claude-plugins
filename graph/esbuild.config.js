@@ -1,10 +1,11 @@
 /**
- * esbuild config — bundles the MCP server and update CLI into self-contained files.
+ * esbuild config — bundles entry points into self-contained files.
  *
  * After tsc compiles TS → JS in dist/, this script:
  * 1. Bundles dist/server.js → dist/server.js (all deps inlined)
  * 2. Bundles dist/update.js → dist/update.js (all deps inlined)
- * 3. Copies .wasm grammar files into dist/ (alongside the bundles)
+ * 3. Bundles dist/view-graph.js → dist/view-graph.js (all deps inlined)
+ * 4. Copies .wasm grammar files into dist/ (alongside the bundles)
  *
  * Result: dist/ is fully self-contained — no node_modules needed at runtime.
  */
@@ -48,14 +49,24 @@ async function main() {
     allowOverwrite: true,
   });
 
+  // Bundle view-graph CLI
+  await build({
+    ...sharedOptions,
+    entryPoints: [join(distDir, "view-graph.js")],
+    outfile: join(distDir, "view-graph.bundle.js"),
+    allowOverwrite: true,
+  });
+
   // Replace originals with bundles
   copyFileSync(join(distDir, "server.bundle.js"), join(distDir, "server.js"));
   copyFileSync(join(distDir, "update.bundle.js"), join(distDir, "update.js"));
+  copyFileSync(join(distDir, "view-graph.bundle.js"), join(distDir, "view-graph.js"));
 
   // Clean up bundle intermediates
   const { unlinkSync } = await import("node:fs");
   try { unlinkSync(join(distDir, "server.bundle.js")); } catch {}
   try { unlinkSync(join(distDir, "update.bundle.js")); } catch {}
+  try { unlinkSync(join(distDir, "view-graph.bundle.js")); } catch {}
 
   // Copy web-tree-sitter runtime WASM (the only file that changes with version upgrades)
   // Grammar .wasm files are pre-built via: npx tree-sitter build --wasm <grammar-path>

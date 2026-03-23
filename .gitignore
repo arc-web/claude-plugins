@@ -2,3 +2,6 @@ graph/node_modules/
 graph/pnpm-workspace.yaml
 .code-review-graph/
 tasks-plans/
+docs/
+app/node_modules/
+app/dist/

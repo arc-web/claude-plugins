@@ -36,8 +36,31 @@ case "$FILE_PATH" in
 esac
 
 [ ! -f "$FILE_PATH" ] && exit 0
+
+# ── /simplify suggestion tracker ──────────────────────────────
+# Count source file edits per session. After threshold, suggest
+# /simplify once via systemMessage. Dedup prevents nagging.
+SIMPLIFY_THRESHOLD=5
+SESSION_KEY="${CLAUDE_SESSION_ID:-unknown}"
+SIMPLIFY_COUNTER="/tmp/composure-edits-${SESSION_KEY}"
+SIMPLIFY_SUGGESTED="/tmp/composure-simplify-done-${SESSION_KEY}"
+EDIT_COUNT=$(cat "$SIMPLIFY_COUNTER" 2>/dev/null || echo 0)
+EDIT_COUNT=$((EDIT_COUNT + 1))
+printf '%d' "$EDIT_COUNT" > "$SIMPLIFY_COUNTER"
+SUGGEST_SIMPLIFY=""
+if [ "$EDIT_COUNT" -ge "$SIMPLIFY_THRESHOLD" ] && [ ! -f "$SIMPLIFY_SUGGESTED" ]; then
+  touch "$SIMPLIFY_SUGGESTED"
+  SUGGEST_SIMPLIFY="You have edited ${EDIT_COUNT}+ files this session. Ask the user: 'Want me to run /simplify to refine what I just wrote before continuing?' — use AskUserQuestion, do not auto-run."
+fi
+
 LINE_COUNT=$(wc -l < "$FILE_PATH" 2>/dev/null | tr -d ' ')
-[ -z "$LINE_COUNT" ] || [ "$LINE_COUNT" -lt 200 ] && exit 0
+[ -z "$LINE_COUNT" ] || [ "$LINE_COUNT" -lt 200 ] && {
+  # File is small — no decomposition needed, but still check simplify suggestion
+  if [ -n "$SUGGEST_SIMPLIFY" ]; then
+    printf '{"systemMessage": "%s"}' "$SUGGEST_SIMPLIFY"
+  fi
+  exit 0
+}
 
 # ── Config ──
 WARN_LINES=400
@@ -321,8 +344,15 @@ fi
 TOTAL_OPEN=$(grep -c '^\- \[ \]' "$TASK_FILE" 2>/dev/null || echo "0")
 
 # ── Return brief, non-distracting systemMessage ──
+MSG=""
 if [ "$TASKS_ADDED" -gt 0 ]; then
-  printf '{"systemMessage": "Code quality: %d task(s) logged for `%s` (%d open total in .claude-tasks.md). Continue current work."}' "$TASKS_ADDED" "$RELATIVE_PATH" "$TOTAL_OPEN"
+  MSG="Code quality: ${TASKS_ADDED} task(s) logged for \`${RELATIVE_PATH}\` (${TOTAL_OPEN} open total). Continue current work."
+fi
+if [ -n "$SUGGEST_SIMPLIFY" ]; then
+  MSG="${MSG:+${MSG} }${SUGGEST_SIMPLIFY}"
+fi
+if [ -n "$MSG" ]; then
+  printf '{"systemMessage": "%s"}' "$MSG"
 fi
 
 exit 0
