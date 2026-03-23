@@ -1,8 +1,15 @@
 #!/bin/bash
 # ============================================================
-# Code Quality Guard v4 — Global PostToolUse Hook
+# Code Quality Guard v5 — Global PostToolUse Hook
 # ============================================================
 # Fires after Edit/Write on source files.
+#
+# v5 CHANGES (from v4):
+#   - Cowork Dispatch integration: emits structured notifications
+#     for CRITICAL/HIGH violations so managers and mobile users
+#     get push alerts with actionable fix commands
+#   - Notification library: sources hooks/lib/notify.sh
+#   - All prior v4 functionality preserved (graph-aware, regex fallback)
 #
 # v4 CHANGES (from v3):
 #   - Graph-aware: queries .code-review-graph/graph.db for exact
@@ -320,9 +327,55 @@ fi
 # ── Count total open tasks ──
 TOTAL_OPEN=$(grep -c '^\- \[ \]' "$TASK_FILE" 2>/dev/null || echo "0")
 
+# ── Cowork Dispatch Notifications ──
+# Emit structured notifications for CRITICAL and HIGH severity violations.
+# These get picked up by Cowork Dispatch for push notifications to:
+#   - Managers/team leads monitoring code quality
+#   - Developers who stepped away from the terminal
+NOTIFICATION_JSON=""
+NOTIFY_LIB="${CLAUDE_PLUGIN_ROOT}/hooks/lib/notify.sh"
+
+if [ -f "$NOTIFY_LIB" ] && [ -n "$SEVERITY" ]; then
+  # shellcheck source=hooks/lib/notify.sh
+  source "$NOTIFY_LIB"
+
+  case "$SEVERITY" in
+    CRITICAL)
+      NOTIF_BODY="CRITICAL: \`${RELATIVE_PATH}\` is ${LINE_COUNT} lines (limit: ${CRITICAL_LINES})."
+      [ "$LARGE_FUNC_COUNT" -gt 0 ] && NOTIF_BODY="${NOTIF_BODY} ${LARGE_FUNC_COUNT} oversized function(s)."
+      VID=$(generate_violation_id "$RELATIVE_PATH" "decomp")
+      NOTIFICATION_JSON=$(emit_notification \
+        "critical" \
+        "Code Quality — Critical" \
+        "$NOTIF_BODY" \
+        "/fix-violation ${VID}" \
+        "$RELATIVE_PATH" \
+        "decomposition")
+      ;;
+    HIGH)
+      NOTIF_BODY="\`${RELATIVE_PATH}\` is ${LINE_COUNT} lines."
+      [ "$LARGE_FUNC_COUNT" -gt 0 ] && NOTIF_BODY="${NOTIF_BODY} ${LARGE_FUNC_COUNT} function(s) over ${FUNC_MAX_LINES}-line limit."
+      VID=$(generate_violation_id "$RELATIVE_PATH" "decomp")
+      NOTIFICATION_JSON=$(emit_notification \
+        "warning" \
+        "Code Quality — High" \
+        "$NOTIF_BODY" \
+        "/fix-violation ${VID}" \
+        "$RELATIVE_PATH" \
+        "decomposition")
+      ;;
+  esac
+fi
+
 # ── Return brief, non-distracting systemMessage ──
 if [ "$TASKS_ADDED" -gt 0 ]; then
-  printf '{"systemMessage": "Code quality: %d task(s) logged for `%s` (%d open total in .claude-tasks.md). Continue current work."}' "$TASKS_ADDED" "$RELATIVE_PATH" "$TOTAL_OPEN"
+  MSG="Code quality: ${TASKS_ADDED} task(s) logged for \`${RELATIVE_PATH}\` (${TOTAL_OPEN} open total). Continue current work."
+
+  if [ -n "$NOTIFICATION_JSON" ] && [ -f "$NOTIFY_LIB" ]; then
+    build_hook_response "$MSG" "$NOTIFICATION_JSON"
+  else
+    printf '{"systemMessage": "%s"}' "$MSG"
+  fi
 fi
 
 exit 0

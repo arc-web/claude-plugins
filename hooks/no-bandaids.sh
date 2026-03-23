@@ -4,6 +4,10 @@ set -euo pipefail
 # no-bandaids.sh — Global PreToolUse hook that blocks type-casting band-aids.
 # Prevents Claude (and subagents) from using shortcuts instead of fixing root causes.
 #
+# v2 CHANGES:
+#   - Cowork Dispatch integration: emits structured notifications when
+#     band-aid fixes are blocked, alerting managers and mobile users
+#
 # Validated against: TypeScript 5.9, React 19.2, Next.js 16.1, Expo SDK 55, RN 0.83
 # Safe patterns: `as const`, `satisfies`, generic type params, async request APIs
 #
@@ -161,6 +165,23 @@ if [[ -n "$VIOLATIONS" ]]; then
   TYPEGEN_HINT=$(printf '%s' "$CONFIG" | jq -r '.typegenHint // empty')
   if [[ -n "$TYPEGEN_HINT" ]]; then
     printf '  - Regen: %s\n' "$TYPEGEN_HINT" >&2
+  fi
+
+  # ── Cowork Dispatch Notification ──
+  # Alert managers and mobile users that a band-aid fix was attempted and blocked.
+  NOTIFY_LIB="${CLAUDE_PLUGIN_ROOT:-$(dirname "$(dirname "$0")")}/hooks/lib/notify.sh"
+  if [[ -f "$NOTIFY_LIB" ]]; then
+    source "$NOTIFY_LIB"
+    RELATIVE_PATH="${FILE_PATH#$PROJECT_DIR/}"
+    [[ "$RELATIVE_PATH" == "$FILE_PATH" ]] && RELATIVE_PATH="$BASENAME"
+    VIOLATION_SUMMARY=$(printf '%b' "$VIOLATIONS" | head -3 | tr '\n' ' ' | sed 's/  */ /g')
+    emit_notification \
+      "warning" \
+      "Band-Aid Blocked" \
+      "Blocked in \`${RELATIVE_PATH}\`: ${VIOLATION_SUMMARY}" \
+      "" \
+      "$RELATIVE_PATH" \
+      "bandaid" > /dev/null 2>&1
   fi
 
   exit 2

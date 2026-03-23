@@ -16,8 +16,18 @@
         "hooks": [
           {
             "type": "agent",
-            "prompt": "Quick session resume check (be brief, just report counts):\n\n1. TASKS: Read tasks-plans/tasks.md. If it has open items (- [ ]), for each DECOMPOSE item check the current file size with wc -l vs the limit. Mark [x] if now under limit. Report: N open, M resolved, K remaining.\n\n2. GRAPH: If .code-review-graph/graph.db exists, check its staleness — read the last_updated metadata. If more than 24h old or if `git log --oneline -1 --format=%ci` is newer than last_updated, suggest running /build-graph. If graph.db doesn't exist, mention /build-graph is available.\n\nIf tasks.md has no open items AND graph is fresh, say nothing.",
+            "prompt": "Quick session resume check (be brief, just report counts):\n\n1. TASKS: Read tasks-plans/tasks.md. If it has open items (- [ ]), for each DECOMPOSE item check the current file size with wc -l vs the limit. Mark [x] if now under limit. Report: N open, M resolved, K remaining.\n\n2. GRAPH: If .code-review-graph/graph.db exists, check its staleness — read the last_updated metadata. If more than 24h old or if `git log --oneline -1 --format=%ci` is newer than last_updated, suggest running /build-graph. If graph.db doesn't exist, mention /build-graph is available.\n\n3. NOTIFICATIONS: If .composure/notifications/pending.jsonl exists, count unread alerts (where \"read\":false). If any unread, report: \"N unread Dispatch alerts (run /quick-status for details)\".\n\nIf tasks.md has no open items AND graph is fresh AND no unread alerts, say nothing.",
             "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'NOTIFY_LIB=\"${CLAUDE_PLUGIN_ROOT}/hooks/lib/notify.sh\"; [ -f \"$NOTIFY_LIB\" ] && source \"$NOTIFY_LIB\" && prune_notifications 48 || true'",
+            "timeout": 5
           }
         ]
       }

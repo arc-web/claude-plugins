@@ -1,7 +1,7 @@
 {
   "name": "composure",
   "description": "Code quality enforcement — decomposition hooks, architecture skills, impact-aware reviews, severity-tracked task queue. Works in Claude Code and Claude Cowork. Go with the grain.",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": {
     "name": "Helder Rodrigues",
     "url": "https://github.com/hrconsultnj"
@@ -33,5 +33,26 @@
       ]
     }
   },
-  "skills": "./skills/"
+  "capabilities": {
+    "hooks": true,
+    "skills": true,
+    "commands": true,
+    "agents": true,
+    "mcp": true,
+    "notifications": true,
+    "dispatch_actions": true
+  },
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "notifications": {
+    "log_path": ".composure/notifications/pending.jsonl",
+    "prune_after_hours": 48,
+    "severity_levels": ["critical", "warning", "info"],
+    "dispatch_commands": {
+      "fix-violation": "/fix-violation",
+      "quick-status": "/quick-status",
+      "build-graph": "/build-graph"
+    }
+  }
 }
