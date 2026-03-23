@@ -1,0 +1,6 @@
+{
+  "extensions": [".ts", ".tsx", ".js", ".jsx"],
+  "skipPatterns": ["*.d.ts", "*.generated.*", "*.gen.*"],
+  "disabledRules": [],
+  "typegenHint": ""
+}
