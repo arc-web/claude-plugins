@@ -26,6 +26,7 @@ claude plugin install composure@composure
 ```
 /composure:init                 # Detect stack, build graph, generate config
 /composure:app-architecture     # Feature-building guide with 25+ reference docs
+/composure:commit               # Commit with auto task queue hygiene
 /composure:decomposition-audit  # Full codebase scan for size violations
 /composure:review-tasks         # Process task queue (verify, delegate, archive...)
 /composure:review-pr            # PR review with blast-radius analysis
@@ -37,24 +38,26 @@ claude plugin install composure@composure
 
 ## What You Get
 
-### 7 Skills
+### 8 Skills
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
 | **Init** | `/init` | Detect project stack, generate config, build graph, create task queue. Run once per project. |
-| **App Architecture** | `/app-architecture` | Feature-building guide. Decision trees for rendering, data fetching, multi-tenant patterns. 25+ reference docs. |
+| **App Architecture** | `/app-architecture` | Feature-building guide. Decision trees for rendering, data fetching, multi-tenant patterns. 25+ reference docs. Auto-loaded on every session start. |
+| **Commit** | `/commit` | Commit with task queue hygiene. Auto-cleans resolved tasks, archives completed audits, blocks if staged files have open quality tasks. |
 | **Decomposition Audit** | `/decomposition-audit` | Full codebase scan. Reports Critical (800+), High (400-799), Moderate (200-399) with extraction instructions. |
 | **Review Tasks** | `/review-tasks` | Process the task queue. Modes: `summary`, `batch`, `delegate`, `clean`, `verify`, `archive`. |
 | **Build Graph** | `/build-graph` | Build or update the code review knowledge graph for impact analysis. |
 | **Review PR** | `/review-pr` | PR review with blast-radius context from the knowledge graph. |
 | **Review Delta** | `/review-delta` | Token-efficient review of changes since last commit. |
 
-### 7 Automated Hooks (3 types)
+### 8 Automated Hooks (3 types)
 
 Claude Code supports three hook types: `command` (shell scripts), `prompt` (LLM evaluation), and `agent` (mini agents with tool access). Composure uses all three.
 
 | Hook | Type | Event | What It Does |
 |------|------|-------|-------------|
+| **Architecture Loader** | `command` | `SessionStart` (all) | Loads the full app-architecture skill on every session start (startup, resume, clear, compact). Ensures architectural context is always available. |
 | **Task Verifier** | `agent` | `SessionStart` (resume) | On session resume, checks open tasks against actual file sizes, marks completed items. Also checks graph staleness. |
 | **Pre-Commit Review** | `agent` | `PreToolUse` (Bash) | Intercepts `git commit`. Auto-cleans resolved tasks, archives completed audit files, blocks commit if staged files have open tasks. |
 | **Architecture Trigger** | `command` | `PreToolUse` (Edit/Write) | Once per session, reminds the agent to load `/app-architecture` before writing code. |
@@ -223,13 +226,13 @@ In monorepo setups, the code quality hook detects inline types that already exis
 7. /review-delta (before commit)
    → Token-efficient review of what you changed
    |
-8. git commit
-   → Pre-commit hook auto-cleans resolved tasks, blocks if staged files have open items
+8. /commit (or git commit)
+   → Auto-cleans resolved tasks, archives completed audits, blocks if staged files have open items
    |
 9. /review-pr (before merge)
    → Full PR review with blast-radius analysis
-   |
-10. /review-tasks archive (optional — pre-commit hook handles this automatically)
+    |
+10. /review-tasks archive (optional — /commit handles this automatically)
     → Manual archive if needed outside commit flow
     |
 11. /decomposition-audit (periodically)
