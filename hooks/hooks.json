@@ -14,6 +14,17 @@
     ],
     "PreToolUse": [
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are a pre-commit task review agent. Your job is to enforce task queue hygiene before git commits.\n\n**Step 0 — Gate check**: Look at the bash command in the tool input. If it does NOT contain `git commit`, respond `ALLOW` immediately. Do not process `git add`, `git push`, `git status`, `git diff`, or any other git/non-git command.\n\n**Step 1 — Housekeeping (auto clean + archive)**:\nBefore checking for blockers, silently handle completed tasks:\n\n1. Read `tasks-plans/tasks.md`. If it has any `- [x]` entries:\n   - Remove all `- [x]` lines and any indented sub-lines beneath them (the clean step)\n\n2. Check `tasks-plans/*.md` files (excluding `tasks.md`). For any file where ALL items are `- [x]` (none are `- [ ]`):\n   - Create `tasks-plans/archived/` if it doesn't exist\n   - Move the fully-completed file to `tasks-plans/archived/`\n\n3. If tasks.md was cleaned, update the \"Last cleaned\" date in line 4\n\n**Step 2 — Check staged files against open tasks**:\n\n1. Run `git diff --cached --name-only` to get staged files\n2. Read `tasks-plans/tasks.md` for remaining open items (`- [ ]`)\n3. For each open task, check if the task's file path matches any staged file\n4. Severity gate: block on ALL severities — Critical, High, AND Moderate\n\n**Step 3 — Decision**:\n\n- If there are open tasks on staged files → respond:\n  DENY — Open tasks found on staged files:\n  List each with severity emoji (red circle Critical, yellow circle High, green circle Moderate), file path, line count, and task description.\n  End with: Resolve these tasks first, or remove the files from staging with: git reset HEAD <file>\n\n- If no open tasks on staged files → respond `ALLOW`\n- If `tasks-plans/tasks.md` doesn't exist or has no open items → respond `ALLOW`\n\n**Behaviors**:\n- Housekeeping runs on EVERY commit attempt, even if allowed. Keeps the queue tidy.\n- Match on partial paths — a task for `apps/mobile/src/components/foo/index.tsx` should match a staged file with the same relative path.\n- Be brief in the ALLOW case — don't explain what was cleaned unless items were actually cleaned, and even then keep it to one line like \"Cleaned 3 resolved tasks. ALLOW\"",
+            "timeout": 30,
+            "statusMessage": "Reviewing task queue..."
+          }
+        ]
+      },
+      {
         "matcher": "Read|Edit|Write",
         "hooks": [
           {

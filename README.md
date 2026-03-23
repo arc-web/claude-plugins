@@ -49,13 +49,14 @@ claude plugin install composure@composure
 | **Review PR** | `/review-pr` | PR review with blast-radius context from the knowledge graph. |
 | **Review Delta** | `/review-delta` | Token-efficient review of changes since last commit. |
 
-### 6 Automated Hooks (3 types)
+### 7 Automated Hooks (3 types)
 
 Claude Code supports three hook types: `command` (shell scripts), `prompt` (LLM evaluation), and `agent` (mini agents with tool access). Composure uses all three.
 
 | Hook | Type | Event | What It Does |
 |------|------|-------|-------------|
 | **Task Verifier** | `agent` | `SessionStart` (resume) | On session resume, checks open tasks against actual file sizes, marks completed items. Also checks graph staleness. |
+| **Pre-Commit Review** | `agent` | `PreToolUse` (Bash) | Intercepts `git commit`. Auto-cleans resolved tasks, archives completed audit files, blocks commit if staged files have open tasks. |
 | **Architecture Trigger** | `command` | `PreToolUse` (Edit/Write) | Once per session, reminds the agent to load `/app-architecture` before writing code. |
 | **No Band-Aids** | `command` | `PreToolUse` (Edit/Write) | Blocks literal type-casting shortcuts (`as any`, `@ts-ignore`, `!` assertions, `_unused` vars). |
 | **Type Safety Review** | `prompt` | `PreToolUse` (Edit/Write) | Semantic review for hidden `any` in generics, lazy types (`Function`, `Object`), unnecessary `as` assertions. Runs after No Band-Aids passes. |
@@ -222,13 +223,16 @@ In monorepo setups, the code quality hook detects inline types that already exis
 7. /review-delta (before commit)
    → Token-efficient review of what you changed
    |
-8. /review-pr (before merge)
+8. git commit
+   → Pre-commit hook auto-cleans resolved tasks, blocks if staged files have open items
+   |
+9. /review-pr (before merge)
    → Full PR review with blast-radius analysis
    |
-9. /review-tasks archive
-   → Archive completed audits, reset task queue
-   |
-10. /decomposition-audit (periodically)
+10. /review-tasks archive (optional — pre-commit hook handles this automatically)
+    → Manual archive if needed outside commit flow
+    |
+11. /decomposition-audit (periodically)
     → Full codebase health check
 ```
 
