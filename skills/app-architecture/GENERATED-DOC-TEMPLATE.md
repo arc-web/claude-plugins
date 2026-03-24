@@ -93,14 +93,16 @@ List things that did NOT change — prevents Claude from suggesting outdated mig
 - API Y — same signature
 ```
 
-## Rules
+## Rules (MUST — non-negotiable)
 
-1. **Only include what Context7 returns.** Do NOT invent patterns, guess APIs, or fill gaps from training data.
-2. **If Context7 returns nothing for a section, skip it.** Don't write "No data available" — just omit the section.
-3. **Code examples must come from Context7.** Copy them verbatim, then clean up formatting only.
-4. **Aim for 200-500 lines.** Be thorough — include complete code examples, full config blocks, and real-world patterns. The curated reference docs in this skill range from 275-773 lines. Don't truncate useful content to be brief, but don't pad with filler either.
-5. **Use the library's actual API.** Don't simplify or abstract — show the real imports, real function signatures, real config keys.
-6. **Frontmatter is machine-readable.** Other tools parse `queried_at` and `context7_library_id` — don't alter the format.
+1. **MUST source ALL content from Context7.** Do NOT invent patterns, guess APIs, or fill gaps from training data. If you did not get it from a `query-docs` call, it does not go in the document.
+2. **MUST have a valid `context7_library_id` in frontmatter.** The value MUST be the exact ID returned by `resolve-library-id` (e.g., `/vitejs/vite/v8.0.0`). NEVER use `manual`, `n/a`, `training-data`, or any placeholder. If you could not resolve the library, do NOT produce a document — return NO_DATA instead.
+3. **MUST NOT fabricate.** If Context7 returns nothing useful after 3 query attempts, return NO_DATA. An empty result is correct. A fabricated document is a defect — it will be treated as a bug, not a fallback.
+4. **If Context7 returns nothing for a section, skip it.** Don't write filler. Omit the section entirely.
+5. **Code examples MUST come from Context7.** Copy them verbatim, then clean up formatting only.
+6. **Aim for 200-500 lines.** Be thorough with what Context7 provides. Don't truncate useful content, but don't pad with filler either.
+7. **Use the library's actual API.** Real imports, real function signatures, real config keys.
+8. **Frontmatter is machine-readable.** Other tools parse `queried_at` and `context7_library_id` to validate provenance. Invalid frontmatter = invalid document.
 
 ## Context7 Query Strategy
 

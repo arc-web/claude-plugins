@@ -16,6 +16,6 @@ Libraries used across multiple categories — validation, AI, payments, email, a
 
 ## Load by detection
 
-If any of these libraries appear in `package.json` dependencies, load ALL files in `sdks/references/generated/`.
+If any of these libraries appear in `package.json` dependencies, check `.claude/frameworks/sdks/generated/` for project-level Context7 docs.
 
 These docs complement category-specific docs — a Next.js project loads `fullstack/nextjs/` AND `sdks/` if it uses AI SDK + Stripe.

@@ -1,6 +1,6 @@
 ---
 name: app-architecture
-description: Complete architecture guide for building features from database to UI. Routes to frontend/, fullstack/, mobile/, or backend/ based on detected stack. Covers decomposition, multi-tenant isolation, auth model, query patterns, and component patterns.
+description: Complete architecture guide for building features from database to UI. Routes to frontend/, fullstack/, mobile/, backend/, or sdks/ based on detected stack. Covers decomposition, multi-tenant isolation, auth model, query patterns, and component patterns.
 ---
 
 # App Architecture — Index
@@ -26,112 +26,125 @@ Based on the detected `frontend` value, load the matching INDEX.md which tells y
 
 | `frontend` value | Load this INDEX | Then follow its MUST READ instructions |
 |---|---|---|
-| `"vite"` | [frontend/INDEX.md](frontend/INDEX.md) | `frontend/core.md` + `frontend/vite/vite.md` + references |
-| `"angular"` | [frontend/INDEX.md](frontend/INDEX.md) | `frontend/core.md` + `frontend/angular/angular.md` + references |
-| `"nextjs"` | [fullstack/INDEX.md](fullstack/INDEX.md) | `frontend/core.md` + `fullstack/nextjs/nextjs.md` + references |
-| `"expo"` | [mobile/INDEX.md](mobile/INDEX.md) | `frontend/core.md` + `mobile/expo/expo.md` + references |
+| `"vite"` | [frontend/INDEX.md](frontend/INDEX.md) | `frontend/core.md` + `frontend/vite/vite.md` |
+| `"angular"` | [frontend/INDEX.md](frontend/INDEX.md) | `frontend/core.md` + `frontend/angular/angular.md` |
+| `"nextjs"` | [fullstack/INDEX.md](fullstack/INDEX.md) | `frontend/core.md` + `fullstack/nextjs/nextjs.md` + curated docs |
+| `"expo"` | [mobile/INDEX.md](mobile/INDEX.md) | `frontend/core.md` + `mobile/expo/expo.md` + curated docs |
 | `null` or other | [frontend/INDEX.md](frontend/INDEX.md) | `frontend/core.md` only |
 
 **Always also load:**
-- [frontend/core.md](frontend/core.md) — Query keys, hooks, page component, decomposition (universal for any UI)
+- [frontend/core.md](frontend/core.md) — Points to curated reference docs (query patterns, hooks, decomposition)
 - [backend/INDEX.md](backend/INDEX.md) → [backend/core.md](backend/core.md) — Database, RLS, auth model (if building data layer)
+- [sdks/INDEX.md](sdks/INDEX.md) — Cross-cutting libraries if detected (AI SDK, Zod, Stripe, etc.)
 
 ## Step 3: Load Language-Specific Patterns
 
-| Language | MUST Read | Where |
-|---|---|---|
-| Python | `backend/python/SKILL.md` | + `backend/python/references/generated/` |
-| Go | `backend/go/SKILL.md` | + `backend/go/references/generated/` |
-| Rust | `backend/rust/SKILL.md` | + `backend/rust/references/generated/` |
-| C/C++ | `backend/c-cpp/SKILL.md` | + `backend/c-cpp/references/generated/` |
-| Swift | `mobile/swift/SKILL.md` | Only when working on native modules |
-| Kotlin | `mobile/kotlin/SKILL.md` | Only when working on native modules |
+| Language | MUST Read |
+|---|---|
+| Python | `backend/python/SKILL.md` |
+| Go | `backend/go/SKILL.md` |
+| Rust | `backend/rust/SKILL.md` |
+| C/C++ | `backend/c-cpp/SKILL.md` |
+| Swift | `mobile/swift/SKILL.md` (only for native modules) |
+| Kotlin | `mobile/kotlin/SKILL.md` (only for native modules) |
 
-TypeScript patterns are distributed across `frontend/`, `fullstack/`, and `mobile/` — loaded automatically via their INDEX.md files. No separate `typescript/` directory.
+TypeScript patterns live in `frontend/typescript/` — loaded automatically via `frontend/INDEX.md`.
 
 **Also load if they exist:**
 - `references/private/` — licensed patterns (submodule, may not be initialized)
-- `.claude/frameworks/{lang}/*.md` — project-level overrides
 
-## Step 4: Apply Patterns
+## Step 4: Load Project-Level Docs
 
-**Loading: read ALL, merge, never discard.**
+Check if `.claude/frameworks/` exists in the project. If it does, load docs from there too:
 
-You MUST read docs from BOTH the plugin AND the project. They are **complementary, not competing**. The plugin's curated docs are battle-tested patterns. The project's docs contain project-specific context (newer versions, custom conventions, team decisions). Both matter.
+```
+.claude/frameworks/{category}/{framework}/generated/  ← Context7 docs for this project
+.claude/frameworks/{category}/{framework}/project/     ← team-written conventions
+```
 
-**Read order** (read ALL of these — do not skip any that exist):
+**Plugin and project docs are complementary — read BOTH, never discard.**
 
 | # | Source | What | Why |
 |---|--------|------|-----|
-| 1 | Plugin | Category `INDEX.md` | Routing — tells you which files to read based on detected stack |
-| 2 | Plugin | Category curated references | Battle-tested patterns (hooks, decomposition, query patterns, etc.) |
-| 3 | Plugin | Category `references/generated/` | Context7 docs shipped with the plugin |
-| 4 | Plugin | Framework-specific file + its `references/` | e.g., `fullstack/nextjs/nextjs.md` + co-located curated docs |
-| 5 | Plugin | Language `SKILL.md` | Anti-patterns for the detected language |
-| 6 | Plugin | `references/private/` | Licensed patterns (submodule) |
-| 7 | Project | `.claude/frameworks/{category}/{framework}/references/generated/` | Project-specific Context7 docs (may have newer versions) |
-| 8 | Project | `.claude/frameworks/{category}/*.md` | Hand-written project conventions |
+| 1 | Plugin | Category `INDEX.md` + curated docs | Battle-tested patterns (hooks, decomposition, query patterns) |
+| 2 | Plugin | Framework-specific files + co-located curated docs | e.g., `fullstack/nextjs/nextjs.md` + `09-ssr-hydration-layout.md` |
+| 3 | Plugin | Language `SKILL.md` | Anti-patterns for the detected language |
+| 4 | Plugin | `references/private/` | Licensed patterns (submodule) |
+| 5 | Project | `.claude/frameworks/{category}/{framework}/generated/` | Context7 docs — may have newer API versions |
+| 6 | Project | `.claude/frameworks/{category}/{framework}/project/` | Team conventions, decisions, overrides |
 
 **When plugin and project docs cover the same topic:**
-- **Read both.** The project doc may have newer API patterns (fresher Context7 query) while the plugin doc has architectural guidance the project doc lacks.
-- **If they conflict on a specific API or pattern**, prefer the project doc — it was generated against the project's actual version.
-- **Never skip the plugin doc** just because a project doc exists. The plugin's curated references (hooks, decomposition, component patterns) contain architectural rules that Context7 doesn't provide.
+- **Read both.** Project docs may have newer API patterns. Plugin docs have architectural rules Context7 doesn't provide.
+- **If they conflict on a specific API**, prefer the project doc — it was generated against the project's actual version.
+- **Never skip plugin docs** just because project docs exist.
 
-**To refresh generated docs:** Run `/composure:initialize --force`
+**To generate project docs:** Run `/composure:initialize --force`
 
 ---
 
 ## Directory Structure
 
 ```
-skills/app-architecture/
-├── SKILL.md                          ← You are here (thin router)
+skills/app-architecture/                  ← PLUGIN (curated, battle-tested)
+├── SKILL.md                              ← You are here (thin router)
+├── GENERATED-DOC-TEMPLATE.md             ← Template for Context7 agent output
 │
-├── frontend/                         ← Web frontend (SPA) + shared TypeScript patterns
-│   ├── INDEX.md                      ← Barrel: routes by frontend value
-│   ├── core.md                       ← Phases 3-4, 6 + decomposition (universal)
-│   ├── references/
-│   │   ├── core/                     ← Curated: TanStack Query, hooks, data patterns
-│   │   └── generated/               ← Context7: TypeScript, shadcn, Tailwind (shared)
-│   ├── vite/
-│   │   ├── vite.md                   ← Phase 5+7 for Vite SPA
-│   │   └── references/generated/    ← Context7: Vite docs
-│   └── angular/
-│       ├── angular.md                ← Phase 5+7 for Angular
-│       └── references/generated/    ← Context7: Angular docs
+├── frontend/                             ← Web frontend + shared TypeScript patterns
+│   ├── INDEX.md
+│   ├── core.md                           ← Routing file (points to typescript/)
+│   ├── typescript/                       ← Curated: TanStack Query, hooks, data patterns
+│   ├── vite/vite.md                      ← Phase 5+7 for Vite SPA
+│   └── angular/angular.md               ← Phase 5+7 for Angular
 │
-├── fullstack/                        ← Full-stack web frameworks
-│   ├── INDEX.md                      ← Barrel
+├── fullstack/                            ← Full-stack web frameworks
+│   ├── INDEX.md
 │   └── nextjs/
-│       ├── nextjs.md                 ← Phase 5+7 for Next.js
-│       └── references/
-│           ├── *.md                  ← Curated: SSR hydration, route groups
-│           └── generated/           ← Context7: Next.js docs
+│       ├── nextjs.md                     ← Phase 5+7 for Next.js
+│       ├── 09-ssr-hydration-layout.md    ← Curated
+│       └── 11-route-groups.md            ← Curated
 │
-├── mobile/                           ← Mobile frameworks
-│   ├── INDEX.md                      ← Barrel
-│   ├── swift/SKILL.md               ← Native module language
-│   ├── kotlin/SKILL.md              ← Native module language
+├── mobile/                               ← Mobile frameworks
+│   ├── INDEX.md
+│   ├── swift/SKILL.md                    ← Native module language
+│   ├── kotlin/SKILL.md                   ← Native module language
 │   └── expo/
-│       ├── expo.md                   ← Phase 5+7 + anti-patterns
-│       └── references/
-│           ├── *.md                  ← Curated: icons, bottom sheets, custom UI
-│           └── generated/           ← Context7: Expo, React Native docs
+│       ├── expo.md                       ← Phase 5+7 + anti-patterns
+│       ├── 13-icon-patterns.md           ← Curated
+│       ├── 14-bottom-sheet-dynamic-sizing.md
+│       └── 15-custom-ui-components.md
 │
-├── backend/                          ← Backend concerns + backend languages
-│   ├── INDEX.md                      ← Barrel
-│   ├── core.md                       ← Phases 1-2 (database, RLS, auth)
-│   ├── python/SKILL.md + references/generated/
-│   ├── go/SKILL.md + references/generated/
-│   ├── rust/SKILL.md + references/generated/
-│   └── c-cpp/SKILL.md + references/generated/
+├── backend/                              ← Backend concerns + languages
+│   ├── INDEX.md
+│   ├── core.md                           ← Phases 1-2 (database, RLS, auth)
+│   ├── python/SKILL.md
+│   ├── go/SKILL.md
+│   ├── rust/SKILL.md
+│   └── c-cpp/SKILL.md
 │
-├── sdks/                             ← Cross-cutting libraries (AI, validation, payments, auth)
-│   ├── INDEX.md                      ← Barrel
-│   └── references/generated/        ← Context7: ai-sdk, zod, stripe, resend, clerk
+├── sdks/                                 ← Cross-cutting libraries
+│   └── INDEX.md
 │
 └── references/
-    └── private/                      ← Licensed patterns (git submodule)
+    └── private/                          ← Licensed patterns (git submodule)
+```
+
+```
+.claude/frameworks/                       ← PROJECT (Context7 generated + team-written)
+├── frontend/
+│   ├── generated/                        ← typescript, shadcn, tailwind, tanstack-query
+│   └── project/                          ← team conventions
+├── fullstack/nextjs/
+│   ├── generated/                        ← nextjs
+│   └── project/
+├── mobile/expo/
+│   ├── generated/                        ← expo-sdk
+│   └── project/
+├── backend/supabase/
+│   ├── generated/                        ← supabase-js
+│   └── project/
+└── sdks/
+    ├── generated/                        ← ai-sdk, zod
+    └── project/
 ```
 
 ---
@@ -141,11 +154,11 @@ skills/app-architecture/
 ```
 Phase 1: Database     → backend/core.md
 Phase 2: Auth Model   → backend/core.md
-Phase 3: Query Keys   → frontend/core.md
-Phase 4: Query Hooks  → frontend/core.md
-Phase 5: App Shell    → fullstack/nextjs/ | frontend/vite.md | mobile/expo/
-Phase 6: Page         → frontend/core.md
-Phase 7: Navigation   → fullstack/nextjs/ | frontend/vite.md | mobile/expo/
+Phase 3: Query Keys   → frontend/core.md → frontend/typescript/
+Phase 4: Query Hooks  → frontend/core.md → frontend/typescript/
+Phase 5: App Shell    → fullstack/nextjs/ | frontend/vite/ | mobile/expo/
+Phase 6: Page         → frontend/core.md → frontend/typescript/
+Phase 7: Navigation   → fullstack/nextjs/ | frontend/vite/ | mobile/expo/
 ```
 
 ---

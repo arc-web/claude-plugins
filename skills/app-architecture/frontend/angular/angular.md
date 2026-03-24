@@ -1,7 +1,7 @@
 # Angular Frontend — Component Architecture
 
 > **Only load this file when `frontend: "angular"` in `.claude/no-bandaids.json`.**
-> **Reference docs in `references/generated/` are populated by `/composure:initialize --force` via Context7.**
+> **Reference docs in `generated/` are populated by `/composure:initialize --force` via Context7.**
 
 ## Phase 5: App Shell with Route Guards
 

@@ -195,69 +195,106 @@ Based on detected frameworks (merged across all detected languages):
 - Composure plugin repo (has `skills/app-architecture/`) → `skills/app-architecture/`
 - User project (normal case) → `.claude/frameworks/`
 
-**Create `{root}/{category}/{framework}/references/generated/` directories** based on detected stack. Only create directories for what's actually detected. Run `mkdir -p` for each.
+**Create `{root}/{category}/{framework}/generated/` and `{root}/{category}/{framework}/project/` directories** based on detected stack. Only create directories for what's actually detected. Run `mkdir -p` for each.
 
-For a Next.js + Expo + Supabase + AI SDK monorepo, this creates:
+For a Next.js + Expo + Supabase + AI SDK monorepo:
 
 ```
 .claude/frameworks/
-├── frontend/references/generated/         ← shared: typescript, shadcn, tailwind, tanstack-query
-├── fullstack/nextjs/references/generated/ ← nextjs
-├── mobile/expo/references/generated/      ← expo-sdk
-├── backend/supabase/references/generated/ ← supabase-js
-└── sdks/references/generated/             ← ai-sdk, zod, stripe, resend (cross-cutting libraries)
+├── frontend/
+│   ├── generated/              ← Context7: typescript, shadcn, tailwind, tanstack-query
+│   └── project/                ← team-written frontend conventions
+├── fullstack/nextjs/
+│   ├── generated/              ← Context7: nextjs
+│   └── project/                ← team-written Next.js conventions
+├── mobile/expo/
+│   ├── generated/              ← Context7: expo-sdk
+│   └── project/
+├── backend/supabase/
+│   ├── generated/              ← Context7: supabase-js
+│   └── project/
+└── sdks/
+    ├── generated/              ← Context7: ai-sdk, zod
+    └── project/
 ```
 
 For a Vite + Python FastAPI project:
 
 ```
 .claude/frameworks/
-├── frontend/references/generated/              ← shared: typescript, shadcn, tailwind
-├── frontend/vite/references/generated/         ← vite
-├── backend/python/references/generated/        ← fastapi, pydantic
-└── sdks/references/generated/                  ← zod (if detected)
+├── frontend/
+│   ├── generated/              ← typescript, shadcn, tailwind
+│   └── project/
+├── frontend/vite/
+│   ├── generated/              ← vite
+│   └── project/
+├── backend/python/
+│   ├── generated/              ← fastapi, pydantic
+│   └── project/
+└── sdks/
+    ├── generated/              ← zod
+    └── project/
 ```
 
-**NEVER create a flat `{root}/typescript/` directory.** That was the old structure. Libraries are distributed by category — the same structure as the plugin's `skills/app-architecture/`.
+**After creating directories**, generate an `INDEX.md` in each framework folder:
+
+```markdown
+# {Framework} — {Category}
+
+## generated/
+Context7-sourced reference docs. Auto-populated by `/composure:initialize`.
+Do NOT edit — will be overwritten on next `--force` run.
+
+| Doc | Library | Version | Queried |
+|-----|---------|---------|---------|
+| {filename} | {lib} | {ver} | {date} |
+
+## project/
+Team-written conventions, decisions, and overrides.
+These complement the generated docs — Claude reads BOTH.
+Add `.md` files here for project-specific patterns.
+```
+
+**NEVER create a flat `{root}/typescript/` directory.** Libraries are distributed by category.
 
 #### 3b. Build the library task list
 
 From the detected stack, build a list of `{ library, version, outputPath, focusAreas }` tuples:
 
-**Library → category mapping** (same structure for both locations):
+**Library → category mapping:**
 
 ```
-Library detected        →  Category path
+Library detected        →  Output path
 ────────────────────────────────────────────────────────────────────────────
 FRONTEND (shared)
-  typescript, react     →  frontend/references/generated/{lib}-{ver}.md
-  shadcn/ui, tailwindcss→  frontend/references/generated/{lib}-{ver}.md
-  tanstack-query        →  frontend/references/generated/{lib}-{ver}.md
+  typescript, react     →  frontend/generated/{lib}-{ver}.md
+  shadcn/ui, tailwindcss→  frontend/generated/{lib}-{ver}.md
+  tanstack-query        →  frontend/generated/{lib}-{ver}.md
 
 FRONTEND (framework-specific)
-  vite                  →  frontend/vite/references/generated/vite-{ver}.md
-  @angular/core, router →  frontend/angular/references/generated/{lib}-{ver}.md
+  vite                  →  frontend/vite/generated/vite-{ver}.md
+  @angular/core, router →  frontend/angular/generated/{lib}-{ver}.md
 
 FULLSTACK
-  next.js               →  fullstack/nextjs/references/generated/nextjs-{ver}.md
+  next.js               →  fullstack/nextjs/generated/nextjs-{ver}.md
 
 MOBILE
-  expo, expo-router     →  mobile/expo/references/generated/{lib}-{ver}.md
-  react-native          →  mobile/expo/references/generated/react-native-{ver}.md
+  expo, expo-router     →  mobile/expo/generated/{lib}-{ver}.md
+  react-native          →  mobile/expo/generated/react-native-{ver}.md
 
 BACKEND
-  supabase-js           →  backend/supabase/references/generated/{lib}-{ver}.md
-  fastapi, pydantic     →  backend/python/references/generated/{lib}-{ver}.md
-  django                →  backend/python/references/generated/{lib}-{ver}.md
-  go stdlib, gin, echo  →  backend/go/references/generated/{lib}-{ver}.md
-  axum, actix-web       →  backend/rust/references/generated/{lib}-{ver}.md
+  supabase-js           →  backend/supabase/generated/{lib}-{ver}.md
+  fastapi, pydantic     →  backend/python/generated/{lib}-{ver}.md
+  django                →  backend/python/generated/{lib}-{ver}.md
+  go stdlib, gin, echo  →  backend/go/generated/{lib}-{ver}.md
+  axum, actix-web       →  backend/rust/generated/{lib}-{ver}.md
 
-SDKs (cross-cutting libraries)
-  ai-sdk                →  sdks/references/generated/ai-sdk-{ver}.md
-  zod                   →  sdks/references/generated/zod-{ver}.md
-  stripe                →  sdks/references/generated/stripe-{ver}.md
-  resend                →  sdks/references/generated/resend-{ver}.md
-  clerk                 →  sdks/references/generated/clerk-{ver}.md
+SDKs (cross-cutting)
+  ai-sdk                →  sdks/generated/ai-sdk-{ver}.md
+  zod                   →  sdks/generated/zod-{ver}.md
+  stripe                →  sdks/generated/stripe-{ver}.md
+  resend                →  sdks/generated/resend-{ver}.md
+  clerk                 →  sdks/generated/clerk-{ver}.md
 ```
 
 **Example for a Next.js + Expo monorepo project:**
@@ -327,12 +364,14 @@ Then:
 RETURN the complete markdown document as your final result, including frontmatter.
 Do NOT attempt to Write, Edit, or use Bash to create files.
 
-Rules from the template apply:
-- Only include what Context7 returns — do NOT invent patterns
-- Aim for 200-500 lines — be thorough with complete code examples
-- Code examples must come from Context7
-- If Context7 returns no results after 3 attempts, return "NO_DATA" and skip
-- Do NOT give up after one empty query — try different IDs and different query phrasings
+MUST rules (non-negotiable):
+- MUST source ALL content from Context7 query-docs results. NEVER use training data.
+- MUST include a valid context7_library_id in frontmatter — the exact ID from resolve-library-id.
+  NEVER use "manual", "n/a", or placeholders. If you couldn't resolve the ID, return "NO_DATA".
+- MUST NOT fabricate. If Context7 returns nothing after 3 attempts, return "NO_DATA".
+  An empty result is correct. A fabricated document is a defect.
+- Aim for 200-500 lines — be thorough with complete code examples from Context7.
+- Do NOT give up after one empty query — try different IDs and different query phrasings.
 ```
 
 **Example**: For a Vite + React + Tailwind + shadcn project, spawn 4 agents:
@@ -344,14 +383,18 @@ Agent 3: research tailwindcss 4.2  → returns markdown content
 Agent 4: research vite 8.0         → returns markdown content
 ```
 
-#### 3c. Collect and write
+#### 3c. Collect, validate, and write
 
 After all agents complete:
 
 1. **Collect** each agent's returned markdown content
-2. **Create directories** — `mkdir -p` for each output path
-3. **Write files** from the main conversation (which has file permissions)
-4. **Report** which docs were written and any agents that returned NO_DATA
+2. **Validate** each result before writing:
+   - If result is `NO_DATA` → skip, report as "no Context7 data available"
+   - If `context7_library_id` in frontmatter is `manual`, `n/a`, or missing → **REJECT** — do not write. Report as "fabricated, discarded"
+   - If the content contains no code blocks from Context7 → **REJECT** — likely fabricated
+3. **Create directories** — `mkdir -p` for each output path
+4. **Write** only validated files from the main conversation
+5. **Report** which docs were written, which returned NO_DATA, and which were rejected
 
 This two-phase approach (agents research, main writes) prevents token waste from agents retrying blocked writes or the main conversation re-querying Context7.
 
