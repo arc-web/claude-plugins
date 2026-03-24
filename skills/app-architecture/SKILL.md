@@ -126,6 +126,10 @@ skills/app-architecture/
 │   ├── rust/SKILL.md + references/generated/
 │   └── c-cpp/SKILL.md + references/generated/
 │
+├── sdks/                             ← Cross-cutting libraries (AI, validation, payments, auth)
+│   ├── INDEX.md                      ← Barrel
+│   └── references/generated/        ← Context7: ai-sdk, zod, stripe, resend, clerk
+│
 └── references/
     └── private/                      ← Licensed patterns (git submodule)
 ```

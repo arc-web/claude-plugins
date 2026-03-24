@@ -189,56 +189,95 @@ Based on detected frameworks (merged across all detected languages):
 
 **Use parallel agents** — spawn one agent per library group. Each agent independently resolves the library ID, queries Context7, and writes the generated doc. This prevents sequential bottlenecks when multiple libraries are detected.
 
-#### 3a. Build the library task list
+#### 3a. Create the categorized folder structure
+
+**Determine the root:**
+- Composure plugin repo (has `skills/app-architecture/`) → `skills/app-architecture/`
+- User project (normal case) → `.claude/frameworks/`
+
+**Create `{root}/{category}/{framework}/references/generated/` directories** based on detected stack. Only create directories for what's actually detected. Run `mkdir -p` for each.
+
+For a Next.js + Expo + Supabase + AI SDK monorepo, this creates:
+
+```
+.claude/frameworks/
+├── frontend/references/generated/         ← shared: typescript, shadcn, tailwind, tanstack-query
+├── fullstack/nextjs/references/generated/ ← nextjs
+├── mobile/expo/references/generated/      ← expo-sdk
+├── backend/supabase/references/generated/ ← supabase-js
+└── sdks/references/generated/             ← ai-sdk, zod, stripe, resend (cross-cutting libraries)
+```
+
+For a Vite + Python FastAPI project:
+
+```
+.claude/frameworks/
+├── frontend/references/generated/              ← shared: typescript, shadcn, tailwind
+├── frontend/vite/references/generated/         ← vite
+├── backend/python/references/generated/        ← fastapi, pydantic
+└── sdks/references/generated/                  ← zod (if detected)
+```
+
+**NEVER create a flat `{root}/typescript/` directory.** That was the old structure. Libraries are distributed by category — the same structure as the plugin's `skills/app-architecture/`.
+
+#### 3b. Build the library task list
 
 From the detected stack, build a list of `{ library, version, outputPath, focusAreas }` tuples:
-
-**Output paths** — generated docs go to TWO locations depending on context:
-
-1. **Plugin path** (`{CLAUDE_PLUGIN_ROOT}/skills/app-architecture/...`) — when running inside the Composure plugin repo itself
-2. **Project path** (`.claude/frameworks/...`) — when running on a user's project (the normal case)
-
-Detect which: if `{cwd}` is the composure plugin repo (has `skills/app-architecture/`), use plugin path. Otherwise use `.claude/frameworks/`.
 
 **Library → category mapping** (same structure for both locations):
 
 ```
 Library detected        →  Category path
 ────────────────────────────────────────────────────────────────────────────
-typescript, react       →  frontend/references/generated/{lib}-{ver}.md
-shadcn/ui, tailwindcss  →  frontend/references/generated/{lib}-{ver}.md
-vite                    →  frontend/vite/references/generated/vite-{ver}.md
-@angular/core, router   →  frontend/angular/references/generated/{lib}-{ver}.md
-next.js                 →  fullstack/nextjs/references/generated/nextjs-{ver}.md
-expo, expo-router       →  mobile/expo/references/generated/{lib}-{ver}.md
-react-native            →  mobile/expo/references/generated/react-native-{ver}.md
-fastapi, pydantic       →  backend/python/references/generated/{lib}-{ver}.md
-django                  →  backend/python/references/generated/{lib}-{ver}.md
-go stdlib, gin, echo    →  backend/go/references/generated/{lib}-{ver}.md
-axum, actix-web         →  backend/rust/references/generated/{lib}-{ver}.md
+FRONTEND (shared)
+  typescript, react     →  frontend/references/generated/{lib}-{ver}.md
+  shadcn/ui, tailwindcss→  frontend/references/generated/{lib}-{ver}.md
+  tanstack-query        →  frontend/references/generated/{lib}-{ver}.md
+
+FRONTEND (framework-specific)
+  vite                  →  frontend/vite/references/generated/vite-{ver}.md
+  @angular/core, router →  frontend/angular/references/generated/{lib}-{ver}.md
+
+FULLSTACK
+  next.js               →  fullstack/nextjs/references/generated/nextjs-{ver}.md
+
+MOBILE
+  expo, expo-router     →  mobile/expo/references/generated/{lib}-{ver}.md
+  react-native          →  mobile/expo/references/generated/react-native-{ver}.md
+
+BACKEND
+  supabase-js           →  backend/supabase/references/generated/{lib}-{ver}.md
+  fastapi, pydantic     →  backend/python/references/generated/{lib}-{ver}.md
+  django                →  backend/python/references/generated/{lib}-{ver}.md
+  go stdlib, gin, echo  →  backend/go/references/generated/{lib}-{ver}.md
+  axum, actix-web       →  backend/rust/references/generated/{lib}-{ver}.md
+
+SDKs (cross-cutting libraries)
+  ai-sdk                →  sdks/references/generated/ai-sdk-{ver}.md
+  zod                   →  sdks/references/generated/zod-{ver}.md
+  stripe                →  sdks/references/generated/stripe-{ver}.md
+  resend                →  sdks/references/generated/resend-{ver}.md
+  clerk                 →  sdks/references/generated/clerk-{ver}.md
 ```
 
 **Example for a Next.js + Expo monorepo project:**
 
 ```
 .claude/frameworks/
-├── frontend/
-│   └── references/
-│       └── generated/
-│           ├── typescript-5.9.md
-│           ├── shadcn-v4.md
-│           └── tailwind-4.md
-├── fullstack/
-│   └── nextjs/
-│       └── references/
-│           └── generated/
-│               └── nextjs-16.md
-└── mobile/
-    └── expo/
-        └── references/
-            └── generated/
-                ├── expo-sdk55.md
-                └── react-native-0.79.md
+├── frontend/references/generated/
+│   ├── typescript-5.9.md
+│   ├── shadcn-v4.md
+│   ├── tailwind-4.md
+│   └── tanstack-query-5.90.md
+├── fullstack/nextjs/references/generated/
+│   └── nextjs-16.md
+├── mobile/expo/references/generated/
+│   └── expo-sdk55.md
+├── backend/supabase/references/generated/
+│   └── supabase-js-v2.md
+└── sdks/references/generated/
+    ├── ai-sdk-v6.md
+    └── zod-v4.md
 ```
 
 **Create directories as needed** — `mkdir -p` before writing each file. The category structure mirrors the plugin's `skills/app-architecture/` layout so the same INDEX.md routing logic works for both plugin-shipped and project-level docs.
@@ -260,16 +299,17 @@ axum, actix-web         →  backend/rust/references/generated/{lib}-{ver}.md
 
 **Only include libraries matching the detected `frontend`/`backend` values.** Do not query Next.js for a Vite project.
 
-#### 3b. Spawn parallel agents
+#### 3b. Spawn parallel research agents
 
-Group libraries by output directory, then spawn **one Agent per group** using the Agent tool. All agents run in parallel (`run_in_background: true`, `mode: "bypassPermissions"`).
+Agents do **research only** — they query Context7 and return the content. They do NOT write files. The main conversation writes the files after collecting agent results. This avoids permission issues with third-party plugin hooks that false-positive match documentation content.
 
-**`bypassPermissions` is required** — agents need to write generated docs without prompting. These are auto-generated reference files, not user code.
+Spawn **one Agent per library group**, all in parallel (`run_in_background: true`).
 
 Each agent receives this prompt:
 
 ```
-You are generating a Context7 reference doc for {library} {version}.
+You are researching Context7 documentation for {library} {version}.
+Your job is to query Context7 and RETURN the document content. Do NOT write any files.
 
 **Read the template first**: Read `skills/app-architecture/GENERATED-DOC-TEMPLATE.md` — it defines
 the exact structure, frontmatter, sections, and rules you MUST follow.
@@ -283,56 +323,41 @@ Then:
    query didn't fully cover — anti-patterns, migration steps, advanced config
 4. If results are still sparse, try a DIFFERENT library ID from the resolve results
    (e.g., /websites/ variant instead of /org/repo) and query again
-5. Read the existing file at {outputPath} (if it exists)
-6. Write the result to: {outputPath} following the template structure exactly
+
+RETURN the complete markdown document as your final result, including frontmatter.
+Do NOT attempt to Write, Edit, or use Bash to create files.
 
 Rules from the template apply:
 - Only include what Context7 returns — do NOT invent patterns
 - Aim for 200-500 lines — be thorough with complete code examples
 - Code examples must come from Context7
-- If Context7 returns no results after 3 attempts, skip the file entirely
+- If Context7 returns no results after 3 attempts, return "NO_DATA" and skip
 - Do NOT give up after one empty query — try different IDs and different query phrasings
 ```
 
-**Example**: For a Vite + React + Tailwind + shadcn project, spawn 4 agents in parallel:
+**Example**: For a Vite + React + Tailwind + shadcn project, spawn 4 agents:
 
 ```
-Agent 1: typescript 5.9   → frontend/references/generated/typescript-5.9.md
-Agent 2: shadcn/ui 4.1    → frontend/references/generated/shadcn-v4.md
-Agent 3: tailwindcss 4.2  → frontend/references/generated/tailwind-4.md
-Agent 4: vite 8.0         → frontend/vite/references/generated/vite-8.md
+Agent 1: research typescript 5.9   → returns markdown content
+Agent 2: research shadcn/ui 4.1    → returns markdown content
+Agent 3: research tailwindcss 4.2  → returns markdown content
+Agent 4: research vite 8.0         → returns markdown content
 ```
 
-For a Next.js + React + Tailwind project, spawn 4 agents:
+#### 3c. Collect and write
 
-```
-Agent 1: typescript 5.9   → frontend/references/generated/typescript-5.9.md
-Agent 2: shadcn/ui 4.1    → frontend/references/generated/shadcn-v4.md
-Agent 3: tailwindcss 4.2  → frontend/references/generated/tailwind-4.md
-Agent 4: next.js 16.1     → fullstack/nextjs/references/generated/nextjs-16.md
-```
+After all agents complete:
 
-#### 3c. Wait and report
+1. **Collect** each agent's returned markdown content
+2. **Create directories** — `mkdir -p` for each output path
+3. **Write files** from the main conversation (which has file permissions)
+4. **Report** which docs were written and any agents that returned NO_DATA
 
-After all agents complete, collect results and report which docs were written, how many Context7 snippets each received, and any failures.
+This two-phase approach (agents research, main writes) prevents token waste from agents retrying blocked writes or the main conversation re-querying Context7.
 
-**While agents are running**: Tell the user what's happening. Example:
+**While agents are running**: proceed with Steps 4-6 (config, graph, task queue). Only Step 3c needs agent results.
 
-```
-Generating framework reference docs (4 agents running in parallel)...
-  - typescript 5.9   → frontend/references/generated/
-  - shadcn/ui 4.1    → frontend/references/generated/
-  - tailwindcss 4.2  → frontend/references/generated/
-  - vite 8.0         → frontend/vite/references/generated/
-
-Continue with Steps 4-6 while agents finish. Results will be reported in Step 7.
-```
-
-**Do NOT wait for agents to finish before proceeding** to Steps 4-6 (config generation, graph build, task queue). These are independent. Only Step 7 (Report) needs agent results.
-
-**First-time users**: The plugin ships with the folder skeleton (`frontend/`, `fullstack/`, `mobile/`, `backend/` with README placeholders). Agents write into these existing directories. No manual setup needed.
-
-**If Context7 is unavailable** (`--skip-context7`): skip this entire step. The plugin ships with curated reference docs in `frontend/references/typescript/` as fallback.
+**If Context7 is unavailable** (`--skip-context7`): skip this entire step. The plugin ships with curated reference docs as fallback.
 
 ### Step 4: Generate Config
 
