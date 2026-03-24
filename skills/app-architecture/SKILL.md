@@ -55,15 +55,27 @@ TypeScript patterns are distributed across `frontend/`, `fullstack/`, and `mobil
 
 ## Step 4: Apply Patterns
 
-**Loading priority** (later overrides earlier):
-1. This index (routing only)
-2. `frontend/core.md` (universal frontend patterns)
-3. `frontend/references/typescript/` (curated: TanStack Query, hooks, data patterns)
-4. `frontend/references/generated/` (Context7: TypeScript, shadcn, Tailwind)
-5. Framework-specific file + its `references/` (co-located)
-6. Language `SKILL.md` (anti-patterns)
-7. `references/private/` (licensed patterns)
-8. `.claude/frameworks/{lang}/*.md` (project-level overrides)
+**Loading: read ALL, merge, never discard.**
+
+You MUST read docs from BOTH the plugin AND the project. They are **complementary, not competing**. The plugin's curated docs are battle-tested patterns. The project's docs contain project-specific context (newer versions, custom conventions, team decisions). Both matter.
+
+**Read order** (read ALL of these — do not skip any that exist):
+
+| # | Source | What | Why |
+|---|--------|------|-----|
+| 1 | Plugin | Category `INDEX.md` | Routing — tells you which files to read based on detected stack |
+| 2 | Plugin | Category curated references | Battle-tested patterns (hooks, decomposition, query patterns, etc.) |
+| 3 | Plugin | Category `references/generated/` | Context7 docs shipped with the plugin |
+| 4 | Plugin | Framework-specific file + its `references/` | e.g., `fullstack/nextjs/nextjs.md` + co-located curated docs |
+| 5 | Plugin | Language `SKILL.md` | Anti-patterns for the detected language |
+| 6 | Plugin | `references/private/` | Licensed patterns (submodule) |
+| 7 | Project | `.claude/frameworks/{category}/{framework}/references/generated/` | Project-specific Context7 docs (may have newer versions) |
+| 8 | Project | `.claude/frameworks/{category}/*.md` | Hand-written project conventions |
+
+**When plugin and project docs cover the same topic:**
+- **Read both.** The project doc may have newer API patterns (fresher Context7 query) while the plugin doc has architectural guidance the project doc lacks.
+- **If they conflict on a specific API or pattern**, prefer the project doc — it was generated against the project's actual version.
+- **Never skip the plugin doc** just because a project doc exists. The plugin's curated references (hooks, decomposition, component patterns) contain architectural rules that Context7 doesn't provide.
 
 **To refresh generated docs:** Run `/composure:initialize --force`
 

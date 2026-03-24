@@ -193,10 +193,17 @@ Based on detected frameworks (merged across all detected languages):
 
 From the detected stack, build a list of `{ library, version, outputPath, focusAreas }` tuples:
 
-**Output path mapping** (relative to `skills/app-architecture/`):
+**Output paths** — generated docs go to TWO locations depending on context:
+
+1. **Plugin path** (`{CLAUDE_PLUGIN_ROOT}/skills/app-architecture/...`) — when running inside the Composure plugin repo itself
+2. **Project path** (`.claude/frameworks/...`) — when running on a user's project (the normal case)
+
+Detect which: if `{cwd}` is the composure plugin repo (has `skills/app-architecture/`), use plugin path. Otherwise use `.claude/frameworks/`.
+
+**Library → category mapping** (same structure for both locations):
 
 ```
-Library detected        →  Output path
+Library detected        →  Category path
 ────────────────────────────────────────────────────────────────────────────
 typescript, react       →  frontend/references/generated/{lib}-{ver}.md
 shadcn/ui, tailwindcss  →  frontend/references/generated/{lib}-{ver}.md
@@ -210,6 +217,31 @@ django                  →  backend/python/references/generated/{lib}-{ver}.md
 go stdlib, gin, echo    →  backend/go/references/generated/{lib}-{ver}.md
 axum, actix-web         →  backend/rust/references/generated/{lib}-{ver}.md
 ```
+
+**Example for a Next.js + Expo monorepo project:**
+
+```
+.claude/frameworks/
+├── frontend/
+│   └── references/
+│       └── generated/
+│           ├── typescript-5.9.md
+│           ├── shadcn-v4.md
+│           └── tailwind-4.md
+├── fullstack/
+│   └── nextjs/
+│       └── references/
+│           └── generated/
+│               └── nextjs-16.md
+└── mobile/
+    └── expo/
+        └── references/
+            └── generated/
+                ├── expo-sdk55.md
+                └── react-native-0.79.md
+```
+
+**Create directories as needed** — `mkdir -p` before writing each file. The category structure mirrors the plugin's `skills/app-architecture/` layout so the same INDEX.md routing logic works for both plugin-shipped and project-level docs.
 
 **Per-framework focus areas:**
 
@@ -326,11 +358,13 @@ Create `.claude/no-bandaids.json`:
       "versions": { "python": "3.12", "fastapi": "0.115" }
     }
   },
-  "generatedRefsRoot": "skills/app-architecture"
+  "generatedRefsRoot": ".claude/frameworks"
 }
 ```
 
-The `frameworks` field tells `no-bandaids.sh` which rules to apply based on file path and extension. The `frontend` and `backend` fields control which reference docs and architecture patterns get loaded — preventing Next.js patterns from bleeding into Vite projects, and vice versa. The `generatedRefsRoot` points to the architecture skill root; generated docs are distributed into `frontend/`, `fullstack/`, `mobile/`, or `backend/` subfolders based on the library-to-path mapping in Step 3.
+The `frameworks` field tells `no-bandaids.sh` which rules to apply based on file path and extension. The `frontend` and `backend` fields control which reference docs and architecture patterns get loaded — preventing Next.js patterns from bleeding into Vite projects, and vice versa.
+
+`generatedRefsRoot` points to where Context7-generated docs live for this project. For user projects this is `.claude/frameworks/` (project-level). For the composure plugin repo itself, it's `skills/app-architecture/`. Generated docs are distributed into `frontend/`, `fullstack/`, `mobile/`, or `backend/` subfolders based on the library-to-path mapping in Step 3.
 
 ### Step 5: Build Code Graph
 
@@ -374,11 +408,11 @@ Generated:
   ✓ .claude/no-bandaids.json (6 extensions, 8 skip patterns, 3 frameworks)
   ✓ tasks-plans/tasks.md (task queue ready)
 
-Framework reference docs (distributed by architecture category):
-  ✓ frontend/references/generated/ (3 docs: typescript-5.9, shadcn-v4, tailwind-4)
-  ✓ frontend/vite/references/generated/ (1 doc: vite-8)
-  ✓ backend/python/references/generated/ (3 docs: python-3.12, fastapi-0.115, pydantic-2.12)
-  ✓ backend/go/references/generated/ (1 doc: go-1.23)
+Framework reference docs (.claude/frameworks/ — categorized):
+  ✓ .claude/frameworks/frontend/references/generated/ (3 docs: typescript-5.9, shadcn-v4, tailwind-4)
+  ✓ .claude/frameworks/frontend/vite/references/generated/ (1 doc: vite-8)
+  ✓ .claude/frameworks/backend/python/references/generated/ (3 docs: python-3.12, fastapi-0.115, pydantic-2.12)
+  ✓ .claude/frameworks/backend/go/references/generated/ (1 doc: go-1.23)
 
 Code review graph:
   ✓ 153 nodes, 883 edges, 23 files (last updated: 2026-03-23)
@@ -405,5 +439,6 @@ Available skills:
 - The skill does NOT modify CLAUDE.md — that's the project's responsibility
 - If the project already has a `.claude/no-bandaids.json`, skip generation unless `--force`
 - Generated framework docs are `.gitignored` by default — users can `git add -f` to commit them
-- Users can also add project-specific patterns at `.claude/frameworks/{lang}/*.md` which layer on top of plugin refs
-- To contribute patterns back to the plugin: move from `generated/` to `references/universal/` and submit a PR
+- Project-level generated docs go to `.claude/frameworks/{category}/{framework}/references/generated/` (e.g., `.claude/frameworks/fullstack/nextjs/references/generated/nextjs-16.md`)
+- Users can also add hand-written project-specific patterns at `.claude/frameworks/{category}/*.md` which layer on top of plugin refs
+- To contribute patterns back to the plugin: move from project `generated/` to plugin `references/` and submit a PR
