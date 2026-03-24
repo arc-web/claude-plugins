@@ -715,16 +715,16 @@ These tools work together as part of the architecture workflow. They are also av
 - [tailwind-4.md](typescript/references/generated/tailwind-4.md) — CSS-based config, @custom-variant
 - [typescript-5.9.md](typescript/references/generated/typescript-5.9.md) — satisfies, strict flags, erasableSyntaxOnly
 
-**Private (`private/` — submodule, licensed patterns):**
-- [01-entity-registry-feed.md](typescript/references/private/data-patterns/01-entity-registry-feed.md) — Entity registry schema
-- [02-id-prefix-convention.md](typescript/references/private/data-patterns/02-id-prefix-convention.md) — ID prefix triggers
-- [03-four-level-auth.md](typescript/references/private/data-patterns/03-four-level-auth.md) — 4-level auth hierarchy
-- [04-privacy-role-system.md](typescript/references/private/data-patterns/04-privacy-role-system.md) — Privacy groups and roles
-- [05-contact-first-pattern.md](typescript/references/private/data-patterns/05-contact-first-pattern.md) — Contact-based account linking
-- [08-metadata-templates.md](typescript/references/private/data-patterns/08-metadata-templates.md) — JSONB metadata patterns
-- [rls-patterns.md](typescript/references/private/rls-policies/rls-patterns.md) — RLS policy templates
-- [role-hierarchy.md](typescript/references/private/rls-policies/role-hierarchy.md) — Role-based access patterns
-- [migration-checklist.md](typescript/references/private/rls-policies/migration-checklist.md) — Migration safety checklist
+**Pro Patterns (`references/private/` — submodule, database & auth architecture, language-agnostic):**
+- [01-entity-registry-feed.md](references/private/data-patterns/01-entity-registry-feed.md) — Entity registry schema
+- [02-id-prefix-convention.md](references/private/data-patterns/02-id-prefix-convention.md) — ID prefix triggers
+- [03-four-level-auth.md](references/private/data-patterns/03-four-level-auth.md) — 4-level auth hierarchy
+- [04-privacy-role-system.md](references/private/data-patterns/04-privacy-role-system.md) — Privacy groups and roles
+- [05-contact-first-pattern.md](references/private/data-patterns/05-contact-first-pattern.md) — Contact-based account linking
+- [08-metadata-templates.md](references/private/data-patterns/08-metadata-templates.md) — JSONB metadata patterns
+- [rls-patterns.md](references/private/rls-policies/rls-patterns.md) — RLS policy templates
+- [role-hierarchy.md](references/private/rls-policies/role-hierarchy.md) — Role-based access patterns
+- [migration-checklist.md](references/private/rls-policies/migration-checklist.md) — Migration safety checklist
 
 ### Other Frameworks
 
