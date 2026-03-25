@@ -50,7 +50,7 @@ project-root/
 │   └── {name}.ts
 ├── actions/                      # Server actions (if using 'use server')
 │   └── {entity}-actions.ts
-└── middleware.ts                  # Next.js middleware (MUST stay at root)
+└── proxy.ts                  # Next.js middleware (MUST stay at root)
 ```
 
 ### Classification Rules
