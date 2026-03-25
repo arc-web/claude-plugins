@@ -70,6 +70,17 @@ If the user said "commit and push" or similar:
 
 Otherwise, do NOT push unless explicitly asked.
 
+### Step 6: Update the code graph
+
+After committing (and pushing if requested), update the graph so it stays current:
+
+1. Check if the `build_or_update_graph` MCP tool is available (composure-graph server running)
+2. If available, call `build_or_update_graph({ full_rebuild: false })` — incremental update, only processes changed files
+3. Report briefly: "Graph updated: N files changed"
+4. If the MCP tool isn't available, skip silently — the PostToolUse hook handles per-file updates anyway
+
+This keeps the graph fresh without requiring users to remember `/build-graph` manually.
+
 ## Notes
 
 - Housekeeping runs on EVERY commit, keeping the task queue tidy automatically
