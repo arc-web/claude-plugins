@@ -1,19 +1,19 @@
 {
-  "name": "composure",
+  "name": "my-claude-plugins",
   "owner": {
     "name": "Helder Rodrigues",
     "email": "hrconsultnj@gmail.com"
   },
   "metadata": {
-    "description": "Code quality enforcement plugin — decomposition hooks, architecture skills, severity-tracked task queue. Go with the grain.",
-    "version": "1.2.20"
+    "description": "Code quality, architecture enforcement, and premium design patterns for Claude Code.",
+    "version": "1.2.72"
   },
   "plugins": [
     {
       "name": "composure",
-      "source": "./",
+      "source": "./plugins/composure",
       "description": "Code quality enforcement plugin — decomposition hooks, architecture skills, severity-tracked task queue",
-      "version": "1.2.20",
+      "version": "1.2.72",
       "category": "development",
       "keywords": [
         "architecture",
@@ -23,6 +23,101 @@
         "typescript",
         "react",
         "next-js"
+      ]
+    },
+    {
+      "name": "design-forge",
+      "source": "./plugins/design-forge",
+      "description": "Premium web design patterns — 33 production components, 10 reference guides, canvas presets, animation recipes, 3D integration, accessibility, AI design research",
+      "version": "2.1.0",
+      "category": "design",
+      "keywords": [
+        "design",
+        "canvas",
+        "generative-art",
+        "glassmorphism",
+        "three-js",
+        "framer-motion",
+        "gsap",
+        "animations",
+        "accessibility",
+        "micro-interactions",
+        "premium-ui"
+      ]
+    },
+    {
+      "name": "sentinel",
+      "source": "./plugins/sentinel",
+      "description": "Security scanning plugin — secret detection hooks, insecure pattern blocking, dependency CVE auditing, Semgrep integration, HTTP header analysis",
+      "version": "1.0.0",
+      "category": "security",
+      "keywords": [
+        "security",
+        "secrets",
+        "cve",
+        "vulnerability",
+        "semgrep",
+        "audit",
+        "owasp",
+        "headers",
+        "dependency-scanning",
+        "xss",
+        "injection"
+      ]
+    },
+    {
+      "name": "testbench",
+      "source": "./plugins/testbench",
+      "description": "Test generation and quality plugin — framework-aware templates, coverage nudging, testing principles reference docs for Vitest, Jest, Playwright, pytest",
+      "version": "1.0.0",
+      "category": "testing",
+      "keywords": [
+        "testing",
+        "vitest",
+        "jest",
+        "playwright",
+        "pytest",
+        "coverage",
+        "unit-tests",
+        "e2e",
+        "mocking",
+        "test-generation"
+      ]
+    },
+    {
+      "name": "shipyard",
+      "source": "./plugins/shipyard",
+      "description": "CI/CD pipeline plugin — GitHub Actions workflows, Docker best practices, deployment principles, multi-stage Dockerfile templates, zero-downtime strategies",
+      "version": "1.0.0",
+      "category": "devops",
+      "keywords": [
+        "ci-cd",
+        "github-actions",
+        "docker",
+        "deployment",
+        "zero-downtime",
+        "pipelines",
+        "containers",
+        "vercel",
+        "turborepo",
+        "devops"
+      ]
+    },
+    {
+      "name": "supabase-patterns",
+      "source": "./plugins/composure/skills/app-architecture/references/private",
+      "description": "Supabase schema enforcement plugin — schema guard hook, multi-tenant patterns, RLS policies, entity registry, ID prefix conventions (Pro license)",
+      "version": "1.0.0",
+      "category": "database",
+      "keywords": [
+        "supabase",
+        "postgres",
+        "rls",
+        "multi-tenant",
+        "schema",
+        "migrations",
+        "entity-registry",
+        "row-level-security"
       ]
     }
   ]

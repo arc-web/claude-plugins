@@ -1,353 +1,302 @@
-# Composure
+# Claude Code Plugins
 
-*Go with the grain — write composed, decomposed code.*
+Claude writes code fast. These plugins make sure it writes it right.
 
-A Claude Code plugin that enforces code quality, architectural discipline, and type safety across **7 languages** through automated hooks, skills, a code knowledge graph, and a severity-tracked task queue. Prevents monolithic files, blocks language-specific anti-patterns, provides impact-aware code reviews, and organizes remediation by priority.
+> 5 plugins &middot; 29 skills &middot; 20 automated hooks &middot; 7 languages &middot; One command setup
 
-**Supported languages:** TypeScript/JavaScript, Python, Go, Rust, C/C++, Swift, Kotlin
+<p align="center">
+  <img src="assets/hero-ecosystem.png" alt="The Pentagon — 5 plugins covering every stage of your project" width="800">
+</p>
 
----
+## The Problem
+
+AI coding agents are fast — but speed without guardrails creates expensive cleanup work. If you've used Claude Code on a real project, you've seen this:
+
+- **Band-aid fixes** — `as any`, `@ts-ignore`, non-null assertions to silence errors instead of fixing types
+- **Monolithic files** — 800+ line components that no one wants to touch later
+- **Sub-agent races** — parallel agents skip shared types and hack around missing schemas
+- **Ignored instructions** — CLAUDE.md says "use proper types" but under pressure, the agent takes shortcuts
+- **No test coverage** — features ship without tests, coverage erodes silently
+- **Insecure patterns** — hardcoded secrets, `eval()`, SQL injection vectors slip through unnoticed
+
+You can write better prompts. You can add more rules to CLAUDE.md. But the agent can still ignore all of it — instructions are suggestions, not enforcement.
+
+**Hooks are different.** They run as shell scripts on every Read/Edit/Write — outside the LLM, at zero token cost. The agent literally cannot bypass them. That's how these plugins work.
+
+<p align="center">
+  <img src="assets/what-it-catches.png" alt="What AI coding agents do wrong — and how Composure stops it" width="800">
+</p>
+
+<p align="center">
+  <img src="assets/before-after.png" alt="Without Composure vs With Composure" width="800">
+</p>
+
+## What You Get (Free)
+
+All plugins, all skills, all hooks — free for personal use, education, and nonprofits.
+
+| What | Count | Details |
+|------|-------|---------|
+| Plugins | 5 | Composure, Design Forge, Sentinel, Testbench, Shipyard |
+| Skills | 27 | Architecture, security scanning, test generation, CI/CD, audits |
+| Hooks | 19 | Code quality, secret detection, type safety, CI validation |
+| Reference docs | 23 | Security patterns, testing patterns, deployment guides |
+| Templates | 12 | Test files, GH Actions workflows, Dockerfiles |
+| Languages | 7 | TypeScript, Python, Go, Rust, C++, Swift, Kotlin |
+
+## Plugins
+
+| Plugin | What it solves |
+|--------|---------------|
+| **[Composure](plugins/composure/)** | Code quality enforcement — decomposition hooks, architecture skills, code review knowledge graph, severity-tracked task queue. The foundation that all other plugins build on. |
+| **[Sentinel](plugins/sentinel/)** | Security scanning — SAST, secret detection on every write, dependency CVE audit, HTTP header analysis. Local-first, no cloud auth. |
+| **[Testbench](plugins/testbench/)** | Convention-aware test generation — reads your existing tests to match project style. Nudges when you edit untested files. |
+| **[Shipyard](plugins/shipyard/)** | CI/CD generation and validation — GitHub Actions, GitLab CI, Bitbucket Pipelines. Dockerfile validation, dependency health, production readiness. |
+| **[Composure Pro](https://buymeacoffee.com/hrconsultnj/e/524085)** | 22 production architecture patterns + schema guard hook. Postgres RLS, tenant isolation, entity registry, auth model, type generation — battle-tested across 322+ migrations. Works with any Postgres host. |
+| **[Design Forge](plugins/design-forge/)** | Premium web design patterns — 33 production components, canvas presets, animation recipes, 3D integration, accessibility-first. |
 
 ## Installation
 
+You only need one install command. Composure is the foundation — when you run `/composure:initialize`, it detects your stack and automatically installs the companion plugins (Sentinel, Testbench, Shipyard).
+
 ```bash
 # Add the marketplace
-claude plugin marketplace add hrconsultnj/composure
+claude plugin marketplace add hrconsultnj/claude-plugins
 
-# Install the plugin
-claude plugin install composure@composure
+# Install Composure
+claude plugin install composure@my-claude-plugins
 
-# Restart Claude Code, then initialize in your project
+# Initialize in your project (auto-installs companion plugins)
 /composure:initialize
 ```
 
-For Pro Patterns (private submodule):
+Design Forge is the one optional install — add it if you're building frontend experiences:
+
 ```bash
-git submodule update --init --recursive
+claude plugin install design-forge@my-claude-plugins
 ```
 
----
+## How It Works
 
-## Quick Start
+Composure operates at three layers — each one doing a different job:
 
-```
-/composure:initialize            # Detect stack, query Context7, build graph, generate config
-/composure:app-architecture     # Feature-building guide — loads framework-specific refs
-/composure:commit               # Commit with auto task queue hygiene
-/composure:decomposition-audit  # Full codebase scan for size violations
-/composure:review-tasks         # Process task queue (verify, delegate, archive...)
-/composure:review-pr            # PR review with blast-radius analysis
-/composure:review-delta         # Review changes since last commit
-/composure:build-graph          # Build/update code review knowledge graph
-```
+<p align="center">
+  <img src="assets/hook-pipeline.png" alt="Hook enforcement pipeline — two-pass gate system" width="800">
+</p>
 
----
+**Hooks (The Enforcer)** — Shell scripts that fire on every Read, Edit, and Write. Two-pass gate: regex pattern matching blocks `as any`, `@ts-ignore`, and other band-aids in under 5 seconds. Then a semantic type-safety review catches `Record<string, any>`, `Promise<any>`, and unnecessary assertions. The agent cannot bypass hooks — they run outside the LLM at zero token cost.
 
-## What You Get
+**Skills (The Playbook)** — 27 slash commands covering architecture (`/composure:app-architecture`), security scanning (`/sentinel:scan`), test generation (`/testbench:generate`), CI/CD (`/shipyard:ci-generate`), and more. Each skill loads framework-specific reference docs so Claude builds features using current API patterns, not stale training data.
 
-### 8 Skills
+**Graph (The Brain)** — A tree-sitter AST parser that builds a SQLite knowledge graph of your codebase. Functions, imports, call chains, file sizes — all queryable through 7 MCP tools. When you run `/composure:review-pr`, Claude knows the blast radius of every change. When you edit a file, the graph updates automatically.
 
-| Skill | Command | Purpose |
-|-------|---------|---------|
-| **Initialize** | `/initialize` | Detect project stack (multi-framework), query Context7 for current API patterns, generate config, build graph, create task queue. Supports monorepos with mixed languages. |
-| **App Architecture** | `/app-architecture` | Feature-building guide. Dynamically loads framework-specific patterns based on detected stack. 25+ reference docs for TypeScript, anti-pattern docs for all 7 languages. |
-| **Commit** | `/commit` | Commit with task queue hygiene. Auto-cleans resolved tasks, archives completed audits, blocks if staged files have open quality tasks. |
-| **Decomposition Audit** | `/decomposition-audit` | Full codebase scan. Reports Critical (800+), High (400-799), Moderate (200-399) with extraction instructions. |
-| **Review Tasks** | `/review-tasks` | Process the task queue. Modes: `summary`, `batch`, `delegate`, `clean`, `verify`, `archive`. |
-| **Build Graph** | `/build-graph` | Build or update the code review knowledge graph for impact analysis. |
-| **Review PR** | `/review-pr` | PR review with blast-radius context from the knowledge graph. |
-| **Review Delta** | `/review-delta` | Token-efficient review of changes since last commit. |
+<p align="center">
+  <img src="assets/code-graph.png" alt="Code review knowledge graph visualization" width="800">
+</p>
 
-### 8 Automated Hooks (3 types)
-
-Claude Code supports three hook types: `command` (shell scripts), `prompt` (LLM evaluation), and `agent` (mini agents with tool access). Composure uses all three.
-
-| Hook | Type | Event | What It Does |
-|------|------|-------|-------------|
-| **Architecture Loader** | `command` | `SessionStart` (all) | Loads the full app-architecture skill on every session start. Ensures architectural context is always available. |
-| **Task Verifier** | `agent` | `SessionStart` (resume) | On session resume, checks open tasks against actual file sizes, marks completed items. Checks graph staleness. |
-| **Architecture Trigger** | `command` | `PreToolUse` (Edit/Write) | Once per session, reminds the agent to load `/app-architecture` before writing code. |
-| **No Band-Aids** | `command` | `PreToolUse` (Edit/Write) | Multi-framework: blocks language-specific anti-patterns (TS: `as any`; Python: `type: ignore`; Go: `_ = err`; Rust: `.unwrap()`; Swift: `!` force unwrap; Kotlin: `!!`; C++: raw `new`). |
-| **Type Safety Review** | `prompt` | `PreToolUse` (Edit/Write) | Semantic review for hidden `any` in generics, lazy types, unnecessary assertions. Runs after No Band-Aids passes. |
-| **Code Quality Guard** | `command` | `PostToolUse` (Edit/Write) | Graph-aware decomposition check. Queries knowledge graph for exact function sizes, logs violations. Also tracks edit count and suggests `/simplify` after 5+ edits. |
-| **Graph Update** | `command` | `PostToolUse` (Edit/Write) | Incrementally updates the code review knowledge graph when files change. |
-
-### Multi-Framework No Band-Aids
-
-The no-bandaids hook detects the file's language from its extension and applies the correct anti-pattern rules:
-
-| Language | Extensions | Key Rules |
-|---|---|---|
-| **TypeScript/JS** | `.ts .tsx .js .jsx` | `as any`, `@ts-ignore`, `@ts-nocheck`, non-null `!`, `_unused` vars |
-| **Python** | `.py` | `type: ignore`, bare `except:`, `# noqa`, `Any` type hints, `eval()`, `os.system()` |
-| **Go** | `.go` | `_ = err` error swallowing, `interface{}` (use generics), `//nolint` without reason, `panic()` in libraries |
-| **Rust** | `.rs` | `.unwrap()` in non-test code, `unsafe {}` without `// SAFETY:` comment |
-| **C/C++** | `.cpp .cc .h .hpp` | `using namespace std` in headers, `NULL` (use `nullptr`), `#define` for constants |
-| **Swift** | `.swift` | Force unwrap `!`, force cast `as!`, `try!` |
-| **Kotlin** | `.kt .kts` | `!!` non-null assertion, `runBlocking`, bare `return@AsyncFunction` |
-
-Rules are gated by the `frameworks` field in `.claude/no-bandaids.json` — only detected languages are checked.
-
-### `/simplify` Integration
-
-After editing 5+ source files in a session, the Code Quality Guard hook suggests running `/simplify` — a Claude-native agent that refines recently modified code for clarity, consistency, and maintainability without changing behavior. The user always decides — Claude asks via `AskUserQuestion`, never auto-runs.
-
-### Code Review Knowledge Graph
-
-A TypeScript MCP server (`graph/`) that builds a persistent SQLite graph of functions, imports, and call relationships using tree-sitter. Zero native dependencies — uses Node.js built-in `node:sqlite`.
-
-**7 MCP Tools:**
-
-| Tool | Purpose |
-|------|---------|
-| `build_or_update_graph` | Full or incremental build (auto-detects changed files from git) |
-| `query_graph` | Pattern queries: `callers_of`, `callees_of`, `imports_of`, `importers_of`, `children_of`, `tests_for`, `inheritors_of`, `file_summary` |
-| `get_review_context` | Changed files + impact analysis + source snippets + review guidance |
-| `get_impact_radius` | BFS traversal showing blast radius of changes |
-| `find_large_functions` | Find functions exceeding a line count threshold (default 150) |
-| `semantic_search_nodes` | Search code entities by name |
-| `list_graph_stats` | Node/edge counts, languages, staleness |
-
-**How it stays current:** The `graph-update` PostToolUse hook re-parses changed files on every Edit/Write. The `decomposition-check` hook queries the graph for exact function sizes instead of using regex heuristics.
-
-**Requirements:** Node.js 22.5+ (for `node:sqlite`). Graph stored at `.code-review-graph/graph.db` (auto-gitignored).
-
----
-
-## Framework Reference Architecture
-
-Each language has its own reference directory with curated patterns, Context7-generated docs, and anti-pattern definitions:
+<details>
+<summary><strong>How the plugins connect</strong></summary>
 
 ```
-skills/app-architecture/
-├── SKILL.md                    # Master skill — dynamic framework loading
-├── typescript/
-│   ├── SKILL.md                # TS/JS anti-patterns and patterns
-│   ├── references/
-│   │   ├── universal/          # 15+ curated reference docs (committed)
-│   │   ├── generated/          # Context7 output (shadcn-v4, vite-8, tailwind-4, etc.)
-│   │   └── private/            # Pro Patterns (git submodule)
-│   └── skills/                 # TS-specific sub-skills
-├── python/                     # Pydantic, mypy, FastAPI patterns
-├── go/                         # Error handling, generics, context propagation
-├── rust/                       # Ownership, clippy, ? operator, unsafe
-├── c-cpp/                      # Smart pointers, RAII, MISRA C, const correctness
-├── swift/                      # Optionals, async/await, SwiftUI, Expo native modules
-└── kotlin/                     # Null safety, coroutines, Jetpack Compose, Expo native modules
+Composure (foundation)
+  ├── .claude/no-bandaids.json      ← All plugins read this for stack detection
+  ├── tasks-plans/tasks.md          ← All plugins write findings here
+  ├── /composure:commit             ← Blocks on Critical findings from ANY plugin
+  └── composure-graph MCP           ← Testbench uses for coverage intelligence
+
+Sentinel (security layer)
+  ├── secret-guard.sh               ← Blocks exposed secrets on every Edit/Write
+  ├── insecure-pattern-guard.sh     ← Blocks insecure code patterns (22 patterns, 4 languages)
+  └── /sentinel:scan                ← Full SAST + dependency audit → tasks-plans/
+
+Testbench (testing layer)
+  ├── test-coverage-nudge.sh        ← Nudges when editing untested files (session-deduped)
+  ├── /testbench:generate           ← Convention-aware test generation
+  └── /testbench:run                ← Run tests, parse failures with source context
+
+Shipyard (deployment layer)
+  ├── ci-syntax-guard.sh            ← Validates CI config on every edit
+  ├── dockerfile-guard.sh           ← Warns on Docker anti-patterns
+  ├── /shipyard:ci-generate         ← Generate CI workflow from detected stack
+  └── /shipyard:preflight           ← Production readiness checklist
+
+Design Forge (design layer)
+  └── /design-forge                 ← Premium components adapted to your stack
 ```
 
-### Context7 Generated Docs
+</details>
 
-`/initialize` queries Context7 for the latest framework APIs and writes versioned reference docs to `{lang}/references/generated/`. These contain current patterns that Claude's training data may be 10+ months behind on.
+<details>
+<summary><strong>All skills reference</strong></summary>
 
-Refresh with `/initialize --force`. Skip with `--skip-context7` for offline/CI.
-
-### Project-Level Overrides
-
-Add project-specific patterns at `.claude/frameworks/{lang}/*.md`. These load last (highest priority) and override plugin-level refs.
-
-To contribute patterns back: move from your project overrides to `references/universal/` and submit a PR.
-
----
-
-## Per-Project Config
-
-`/initialize` generates `.claude/no-bandaids.json` automatically:
-
-```json
-{
-  "extensions": [".ts", ".tsx", ".js", ".jsx", ".py", ".go"],
-  "skipPatterns": ["*.d.ts", "*.generated.*", "__pycache__/*"],
-  "disabledRules": [],
-  "typegenHint": "pnpm --filter @myapp/database generate",
-  "frameworks": {
-    "typescript": {
-      "paths": ["apps/web", "packages/shared"],
-      "versions": { "typescript": "5.9", "react": "19.2", "vite": "8.0" }
-    },
-    "python": {
-      "paths": ["services/api"],
-      "versions": { "python": "3.12", "fastapi": "0.115" }
-    }
-  },
-  "generatedRefsPath": "skills/app-architecture/{lang}/references/generated"
-}
-```
-
-| Field | Default | Description |
-|-------|---------|-------------|
-| `extensions` | `.ts .tsx .js .jsx` | File extensions to check |
-| `skipPatterns` | `*.d.ts *.generated.* *.gen.*` | Globs to skip |
-| `disabledRules` | `[]` | Rule names to disable |
-| `typegenHint` | `""` | Type regen command shown in error messages |
-| `frameworks` | `{ "typescript": {...} }` | Detected languages with paths and versions |
-| `generatedRefsPath` | `""` | Path template for Context7-generated docs |
-
----
-
-## Size Limits
-
-Enforced by the hook and architecture skill:
-
-| Component Type | Plan at | Hard Limit | Decomposition Pattern |
-|----------------|---------|------------|----------------------|
-| Container/Page | 100 | 150 | Split into child presentation components |
-| Presentation | 100 | 150 | Extract sub-sections into focused components |
-| Dialog/Modal | 150 | 200 | Multi-step: `steps/Step1.tsx`, `steps/Step2.tsx` |
-| Form (complex) | 200 | 300 | Split field groups into sub-forms |
-| Hook (queries) | 80 | 120 | One entity's reads per file |
-| Hook (queries + mutations) | 100 | 150 | Split: `queries.ts` + `mutations.ts` |
-| Types file | 200 | 300 | Group by domain |
-| Route file | 30 | 50 | Thin wrapper — import container, pass params |
-
----
-
-## Task Queue
-
-The PostToolUse hook logs issues to `tasks-plans/tasks.md`, grouped by severity:
-
-```markdown
-## Critical
-- [ ] **DECOMPOSE** `security-client.tsx` (1220 lines) [2026-03-19]
-  - EXTRACT: `SecurityClient` (lines 111-1220, ~1110 lines)
-  - MOVE: 6 inline types to `types.ts`
-
-## High
-- [ ] **DECOMPOSE** `OrgShopsList.tsx` (739 lines) [2026-03-19]
-
-## Moderate
-- [ ] **SHARED** `security-client.tsx` [2026-03-19]
-  - Types `PasskeyInfo`, `VerificationAction` already exist in shared package
-```
-
-Tasks are deduplicated and persist across sessions. Process with `/review-tasks`:
-
-| Mode | What It Does |
-|------|-------------|
-| `summary` | Show categorized task counts |
-| `batch` | Process tasks sequentially, mark done |
-| `delegate` | Spawn parallel sub-agents for independent tasks |
-| `verify` | Check file sizes against tasks, auto-mark completed items |
-| `archive` | Move completed audit files to `tasks-plans/archived/`, reset queue |
-| `clean` | Remove resolved `[x]` entries |
-
----
-
-## Workflow
+### Composure
 
 ```
-1. /composure:initialize
-   → Detects stack (multi-framework), queries Context7, generates config,
-     builds graph, ensures Context7, creates task queue
-   |
-2. Resume a session
-   → SessionStart agent auto-verifies open tasks, checks graph staleness
-   |
-3. Start building a feature
-   → Architecture hook fires once, loads /app-architecture with framework refs
-   |
-4. Write code
-   → No band-aids (command) → type safety review (prompt) — layered gate
-   → Rules adapt to file language (TS, Python, Go, Rust, C/C++, Swift, Kotlin)
-   → Graph update hook keeps knowledge graph current
-   → Code quality hook queries graph for exact function sizes, logs violations
-   |
-5. After 5+ edits
-   → Code quality hook suggests /simplify — user decides via AskUserQuestion
-   |
-6. /review-tasks verify
-   → Check which decomposition tasks are now resolved
-   |
-7. /review-tasks delegate
-   → Sub-agents fix remaining issues in parallel
-   |
-8. /review-delta (before commit)
-   → Token-efficient review of what you changed
-   |
-9. /commit (or git commit)
-   → Auto-cleans resolved tasks, archives completed audits,
-     blocks if staged files have open items
-   |
-10. /review-pr (before merge)
-    → Full PR review with blast-radius analysis
-    |
-11. /decomposition-audit (periodically)
-    → Full codebase health check
+/composure:initialize            # Detect stack, build graph, generate config
+/composure:app-architecture      # Feature-building guide — framework-specific refs
+/composure:commit                # Commit with auto task queue hygiene + graph update
+/composure:decomposition-audit   # Full codebase scan for size violations + ghost duplicates
+/composure:review-tasks          # Process task queue (verify, delegate, archive)
+/composure:review-pr             # PR review with blast-radius analysis
+/composure:review-delta          # Review changes since last commit
+/composure:build-graph           # Build/update code review knowledge graph
+/composure:code-organizer        # Restructure project layout to framework conventions
+/composure:update-project        # Refresh config, hooks, or docs without full re-init
 ```
 
----
+### Sentinel
 
-## Configuration
+```
+/sentinel:initialize             # Detect stack, install security tools, generate config
+/sentinel:scan                   # Full SAST (Semgrep) + dependency audit
+/sentinel:audit-deps             # Focused dependency vulnerability scan
+/sentinel:headers                # HTTP security header analysis (context-aware grading)
+```
 
-### Hook Thresholds
+Sentinel also runs automatically via hooks:
+- **secret-guard** — blocks exposed secrets on every Edit/Write (19 patterns: AWS, GitHub, Stripe, SSH keys, JWTs, Supabase service_role, and more)
+- **insecure-pattern-guard** — blocks insecure code patterns (eval, innerHTML, SQL injection, command injection across TypeScript, Python, Go, Rust)
+- **dep-freshness-check** — checks for known CVEs on session start
 
-Edit hook scripts in `hooks/` to customize:
+### Testbench
 
-- `WARN_LINES=400` — file size warning
-- `ALERT_LINES=600` — file size alert
-- `CRITICAL_LINES=800` — file size critical
-- `FUNC_MAX_LINES=150` — function size limit
-- `SIMPLIFY_THRESHOLD=5` — edits before suggesting /simplify
+```
+/testbench:initialize            # Detect test framework, learn project conventions
+/testbench:generate <file>       # Generate tests matching your project style
+/testbench:run [all|changed]     # Run tests, parse failures with source context
+```
 
-### No Band-Aids Config
+### Shipyard
 
-Per-project via `.claude/no-bandaids.json` (see above) or run `/initialize` to auto-generate.
+```
+/shipyard:initialize             # Detect CI platform, deployment target, tools
+/shipyard:ci-generate            # Generate CI workflow (GH Actions, GitLab, Bitbucket)
+/shipyard:ci-validate            # Validate existing CI workflows (12 checks + actionlint)
+/shipyard:deps-check             # Dependency health — CVEs, safe version recommendations
+/shipyard:dockerfile             # Generate/validate multi-stage Dockerfiles
+/shipyard:preflight              # Production readiness checklist
+```
 
----
+### Design Forge
 
-## Requirements
+```
+/design-forge                    # Browse and apply premium web design patterns
+/ux-researcher                   # Research design patterns and competitors
+```
 
-- Claude Code CLI
-- Node.js 22.5+ (for `node:sqlite` and WASM-based code parsers)
-- `jq` (JSON parsing in hooks)
-- `sqlite3` (optional — enables graph-aware decomposition checks)
+</details>
 
-**Platform support:** macOS, Linux, and Windows. The graph MCP server uses web-tree-sitter (WASM) — fully cross-platform with no native compilation. On Windows, hooks require bash via [Git for Windows](https://gitforwindows.org/) (ships Git Bash) or WSL.
+## Composure Pro ($39)
 
----
+The free plugins catch mistakes as they happen — band-aids blocked, secrets caught, decomposition violations logged. But catching mistakes is reactive. **Pro makes Claude proactive.**
+
+Pro adds **22 production architecture patterns** and a **schema guard hook** — the kind of knowledge you build after shipping 9+ multi-tenant apps across 322+ migrations. These aren't tutorials. They're reference patterns that Claude reads and applies directly when building features, plus a PreToolUse hook that blocks SQL anti-patterns before they land.
+
+**The difference:** Without Pro, Claude builds the feature and the hooks catch what went wrong. With Pro, Claude builds it correctly from the start — proper tenant isolation, layered access control, migration-safe RLS policies, trigger-driven denormalization — because it has the architectural knowledge before writing the first line, and the schema guard blocks mistakes the agent would otherwise make.
+
+| Category | Docs | What Claude Learns |
+|----------|------|-------------------|
+| Bootstrap | 1 | Foundation migration sequence — enum catalog, function authority, dependency order |
+| DB Foundation | 5 | Entity registry, ID prefixes, 4-level auth, privacy roles, contact-first linking |
+| Conventions | 1 | JSONB metadata naming, entity.relationship templates |
+| Infrastructure | 3 | Google Places → trigger → PostGIS pipeline, trigger-driven denormalization, DB-to-TypeScript type generation |
+| Optional Modules | 3 | Device registry + sessions, unified inbox/threads/messages, OAuth token storage |
+| RLS Policies | 5 | Row-level security patterns, role hierarchy, migration checklist (90+ items), common pitfalls |
+| Frontend | 4 | Query key factories, component patterns, three-tier loading system, multi-tenant OrgSwitcher with tenant filtering |
+
+Plus a **schema guard hook** that blocks: boolean status columns, inline role definitions, missing tenant columns, missing RLS, and computed privacy groups — citing the exact pattern doc in each violation message.
+
+When you combine free + Pro, this is what changes: anytime you need to build something that touches the database, the agent builds it properly — pages, components, migrations, permissions — without you having to go back, babysit, and re-read documentation that was clearly defined but got skipped for speed.
+
+**[Get Composure Pro ($39)](https://buymeacoffee.com/hrconsultnj/e/524085)** — one-time per major version. Existing customers get 50% off upgrades.
+
+## Troubleshooting
+
+<details>
+<summary><strong>Reinstall a plugin</strong></summary>
+
+```bash
+# Uninstall
+claude plugin uninstall composure
+# Reinstall
+claude plugin install composure@my-claude-plugins
+# Restart Claude Code (exit and reopen)
+```
+
+</details>
+
+<details>
+<summary><strong>Code review graph not working</strong></summary>
+
+Composure's code graph requires **Node.js 22.5+**. Check with `node --version`.
+
+If Node is fine but the graph still doesn't work, run `/composure:initialize` — it will auto-register the server and survive future plugin updates.
+
+Or register manually:
+
+```bash
+# Find your plugin path
+COMPOSURE_PATH=$(claude plugin list --json | node -e "
+  const p = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+  const c = p.find(x => x.id.startsWith('composure') && x.enabled);
+  if (c) console.log(c.installPath);
+")
+
+# Copy launcher to stable location + register
+cp "$COMPOSURE_PATH/scripts/launch-graph-server.sh" ~/.claude/plugins/composure-graph-launcher.sh
+chmod +x ~/.claude/plugins/composure-graph-launcher.sh
+claude mcp add composure-graph -- bash ~/.claude/plugins/composure-graph-launcher.sh
+
+# Restart Claude Code
+```
+
+</details>
+
+<details>
+<summary><strong>Graph stops working after plugin update</strong></summary>
+
+After `claude plugin update composure`, just restart Claude Code (Ctrl+C → `claude`). The launcher resolves the latest cached version at startup — no re-registration needed.
+
+</details>
+
+<details>
+<summary><strong>Remove everything (full reset)</strong></summary>
+
+```bash
+# Remove plugins
+claude plugin uninstall composure
+claude plugin uninstall design-forge
+claude plugin uninstall sentinel
+claude plugin uninstall testbench
+claude plugin uninstall shipyard
+
+# Remove the MCP server (if registered)
+claude mcp remove composure-graph
+
+# Remove the marketplace
+claude plugin marketplace remove my-claude-plugins
+```
+
+</details>
 
 ## Licensing
 
-### Community (Free)
+All plugins are [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/).
 
-**PolyForm Noncommercial 1.0.0** — [Full text](./LICENSE)
+| Tier | Price | What you get |
+|------|-------|-------------|
+| **Free** | $0 | All 5 plugins, 29 skills, 20 hooks — personal use, education, nonprofits |
+| **Composure Pro** | [$39](https://buymeacoffee.com/hrconsultnj/e/524085) | 22 architecture patterns + schema guard hook — for individual developers |
+| **Commercial License** | [$99](https://buymeacoffee.com/hrconsultnj/e/524265) | All plugins for commercial use + includes Pro patterns — one-time, per major version |
 
-Free for personal, educational, and noncommercial use. Includes the full plugin: all hooks, graph MCP server, all 8 skills, 7 language frameworks, and 15+ universal reference documents.
+One-time purchase. Most AI code review tools charge $20-30/seat/month — this is a flat fee for your entire team, forever.
 
-**Allowed:** Personal projects, hobby work, learning, academic research, nonprofit/government use, evaluating before purchase.
+**[Get Pro ($39)](https://buymeacoffee.com/hrconsultnj/e/524085)** &middot; **[Get Commercial ($99)](https://buymeacoffee.com/hrconsultnj/e/524265)** &middot; Existing customers get 50% off upgrades
 
-### Pro ($39 — one-time, per GitHub user)
+## Support
 
-**[Purchase Pro License](https://composure.lemonsqueezy.com)** | [Commercial License Terms](./COMMERCIAL-LICENSE.md)
+If these plugins save you time, consider supporting the project:
 
-Everything in Community, plus:
+<a href="https://buymeacoffee.com/hrconsultnj" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="48"></a>
 
-| | Community (Free) | Pro ($39) |
-|---|---|---|
-| Plugin core (hooks, graph MCP, skills) | Yes | Yes |
-| 7 language frameworks (TS, Python, Go, Rust, C/C++, Swift, Kotlin) | Yes | Yes |
-| Universal reference docs (15+) | Yes | Yes |
-| Context7 generated docs | Yes | Yes |
-| **Commercial use** | No | **Yes** |
-| **Pro Patterns** (battle-tested data architecture) | No | **Yes** |
-| **RLS & migration patterns** | No | **Yes** |
-| Updates within major version | Yes | **Yes** |
-| Major version upgrades | — | **50% off ($19)** |
-
-**Pro Patterns** include production-proven multi-tenant architecture: entity registry, ID prefix conventions, multi-level auth, privacy/role systems, contact-first patterns, metadata templates, RLS policies, role hierarchies, and migration checklists — delivered via private Git submodule.
-
-**How it works:**
-1. Purchase at the link above
-2. Provide your GitHub username
-3. You're added as a collaborator on the private patterns repo (within 48 hours)
-4. Run `git submodule update --init --recursive` in your Composure installation
-
-**Requires a commercial license:** freelance/contract work, agency projects, for-profit company use, redistribution.
-
-### Privacy
-
-Composure runs entirely on your local machine. No data collection, no telemetry, no network requests. [Full privacy policy](./PRIVACY.md).
-
-### Contributing
-
-By submitting a pull request, you grant the licensor the right to license your contribution under these terms and any future license terms for this project.
+[buymeacoffee.com/hrconsultnj](https://buymeacoffee.com/hrconsultnj)
