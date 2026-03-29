@@ -1,0 +1,277 @@
+<!-- ═══ TAB PANEL TEMPLATES ═════════════════════════════════════
+     Each panel is a <div class="tab-content"> with a unique id.
+     Only include panels that have data. Omit entirely if plugin
+     was not available or --no-{plugin} was passed.
+
+     Grade colors (use inline style="color:{hex}" for print):
+       A = #22c55e, B = #3b82f6, C = #eab308, D = #f97316, F = #ef4444
+     Severity colors:
+       Critical = #ef4444, High = #f97316, Moderate = #eab308, Low = #3b82f6
+     Status:
+       Pass = #22c55e, Warn = #eab308, Fail = #ef4444
+
+     DYNAMIC: Replace {{PLACEHOLDERS}} with audit data.
+     STATIC: CSS classes, HTML structure, and nesting must match exactly.
+═══════════════════════════════════════════════════════════════ -->
+
+<!-- ─── CODE QUALITY (always) ─────────────────────────────── -->
+<div class="tab-content" id="tab-quality" data-title="Code Quality">
+  <h2 class="section-title">Code Quality</h2>
+
+  <h3 class="section-subtitle">File Size Distribution</h3>
+  <div class="bar-chart">
+    <!-- One bar-row per bucket. Width = bucket_count / largest_bucket * 100 -->
+    <div class="bar-row">
+      <span class="bar-label">0–200</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_0_200}}%; background: #22c55e"></div></div>
+      <span class="bar-value">{{COUNT_0_200}}</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">201–400</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_201_400}}%; background: #3b82f6"></div></div>
+      <span class="bar-value">{{COUNT_201_400}}</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">401–600</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_401_600}}%; background: #eab308"></div></div>
+      <span class="bar-value">{{COUNT_401_600}}</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">601–800</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_601_800}}%; background: #f97316"></div></div>
+      <span class="bar-value">{{COUNT_601_800}}</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">801+</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_801}}%; background: #ef4444"></div></div>
+      <span class="bar-value">{{COUNT_801}}</span>
+    </div>
+  </div>
+
+  <details>
+    <summary>Large Files (over 400 lines) <span class="count-badge">{{LARGE_FILES_COUNT}}</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>File</th><th>Lines</th></tr></thead>
+          <tbody>
+            <!-- One tr per large file, sorted by line count desc -->
+            <!-- <tr><td class="path">{{FILE_PATH}}</td><td class="num">{{LINES}}</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Large Functions (over 150 lines) <span class="count-badge">{{LARGE_FUNCS_COUNT}}</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>Function</th><th>File</th><th>Lines</th></tr></thead>
+          <tbody>
+            <!-- <tr><td>{{FUNC_NAME}}</td><td class="path">{{FILE_PATH}}</td><td class="num">{{LINES}}</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Open Tasks <span class="count-badge">{{OPEN_TASKS}}</span></summary>
+    <div class="detail-body">
+      <p>{{OPEN_TASKS}} unchecked items in tasks-plans/tasks.md</p>
+    </div>
+  </details>
+</div>
+
+<!-- ─── SECURITY (only if Sentinel available) ─────────────── -->
+<div class="tab-content" id="tab-security" data-title="Security">
+  <h2 class="section-title">Security</h2>
+
+  <h3 class="section-subtitle">Vulnerability Summary</h3>
+  <div class="bar-chart">
+    <!-- Width = count / max(total, 1) * 100, minimum 2% if count > 0 -->
+    <div class="bar-row">
+      <span class="bar-label">Critical</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_CRITICAL}}%; background: var(--sev-critical)"></div></div>
+      <span class="bar-value">{{COUNT_CRITICAL}}</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">High</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_HIGH}}%; background: var(--sev-high)"></div></div>
+      <span class="bar-value">{{COUNT_HIGH}}</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Moderate</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{PCT_MODERATE}}%; background: var(--sev-moderate)"></div></div>
+      <span class="bar-value">{{COUNT_MODERATE}}</span>
+    </div>
+  </div>
+
+  <details>
+    <summary>Top Findings <span class="count-badge">{{FINDINGS_COUNT}}</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>Severity</th><th>Description</th><th>Location</th></tr></thead>
+          <tbody>
+            <!-- Up to 10 rows sorted by severity -->
+            <!-- <tr><td><span class="badge badge-{{SEV_CLASS}}">{{SEVERITY}}</span></td><td>{{DESCRIPTION}}</td><td class="path">{{LOCATION}}</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Dependency Health <span class="count-badge">{{VULNERABLE}}/{{TOTAL_DEPS}} vulnerable</span></summary>
+    <div class="detail-body">
+      <p>{{DEPENDENCY_SUMMARY}}</p>
+    </div>
+  </details>
+
+  <!-- Only if --url was provided -->
+  <details>
+    <summary>HTTP Security Headers <span class="count-badge">{{HEADERS_PRESENT}}/{{HEADERS_TOTAL}} present</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>Header</th><th>Status</th></tr></thead>
+          <tbody>
+            <!-- <tr><td>{{HEADER_NAME}}</td><td><span class="badge badge-{{pass|fail}}">{{STATUS}}</span></td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ─── TESTING (only if Testbench available) ─────────────── -->
+<div class="tab-content" id="tab-testing" data-title="Testing">
+  <h2 class="section-title">Testing</h2>
+
+  <h3 class="section-subtitle">Code Coverage</h3>
+  <div class="bar-chart">
+    <!-- Width = coverage percentage directly. Color by threshold: >=80 green, >=60 blue, >=40 yellow, >=20 orange, <20 red -->
+    <div class="bar-row">
+      <span class="bar-label">Lines</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{COV_LINES}}%; background: {{COV_LINES_COLOR}}"></div></div>
+      <span class="bar-value">{{COV_LINES}}%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Functions</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{COV_FUNCS}}%; background: {{COV_FUNCS_COLOR}}"></div></div>
+      <span class="bar-value">{{COV_FUNCS}}%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Branches</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{COV_BRANCHES}}%; background: {{COV_BRANCHES_COLOR}}"></div></div>
+      <span class="bar-value">{{COV_BRANCHES}}%</span>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle">Test Results</h3>
+  <div class="score-grid">
+    <div class="score-card"><div class="card-label">Total</div><div class="card-grade" style="color: var(--text)">{{TOTAL_TESTS}}</div></div>
+    <div class="score-card"><div class="card-label">Passed</div><div class="card-grade" style="color: var(--pass)">{{PASSED}}</div></div>
+    <div class="score-card"><div class="card-label">Failed</div><div class="card-grade" style="color: var(--fail)">{{FAILED}}</div></div>
+    <div class="score-card"><div class="card-label">Skipped</div><div class="card-grade" style="color: var(--text-muted)">{{SKIPPED}}</div></div>
+  </div>
+
+  <details>
+    <summary>Lowest Coverage Files <span class="count-badge">{{LOW_COV_COUNT}}</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>File</th><th>Line Coverage</th></tr></thead>
+          <tbody>
+            <!-- <tr><td class="path">{{FILE_PATH}}</td><td class="num">{{COVERAGE}}%</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ─── DEPLOYMENT (only if Shipyard available) ───────────── -->
+<div class="tab-content" id="tab-deployment" data-title="Deployment Readiness">
+  <h2 class="section-title">Deployment Readiness</h2>
+
+  <h3 class="section-subtitle">CI/CD Platform</h3>
+  <p>{{CI_PLATFORM}}</p>
+
+  <details open>
+    <summary>Preflight Checks <span class="count-badge">{{PASS_COUNT}} pass / {{WARN_COUNT}} warn / {{FAIL_COUNT}} fail</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>Check</th><th>Status</th><th>Detail</th></tr></thead>
+          <tbody>
+            <!-- <tr><td>{{CHECK_NAME}}</td><td><span class="badge badge-{{pass|warn|fail}}">{{STATUS}}</span></td><td>{{DETAIL}}</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Issues to Address <span class="count-badge">{{ISSUES_COUNT}}</span></summary>
+    <div class="detail-body">
+      <ol class="rec-list">
+        <!-- <li class="rec-item"><div class="rec-num"></div><div class="rec-body"><div class="rec-title"><span class="badge badge-{{sev}}">{{SEVERITY}}</span> {{TITLE}}</div><div class="rec-desc">{{DETAIL}}</div></div></li> -->
+      </ol>
+    </div>
+  </details>
+</div>
+
+<!-- ─── STACK (always) ────────────────────────────────────── -->
+<div class="tab-content" id="tab-stack" data-title="Stack Profile">
+  <h2 class="section-title">Stack Profile</h2>
+
+  <div class="stack-grid">
+    <div class="stack-item"><div class="stack-label">Language</div><div class="stack-value">{{LANGUAGE}}</div></div>
+    <div class="stack-item"><div class="stack-label">Framework</div><div class="stack-value">{{FRAMEWORK}}</div></div>
+    <div class="stack-item"><div class="stack-label">Package Manager</div><div class="stack-value">{{PKG_MANAGER}}</div></div>
+    <div class="stack-item"><div class="stack-label">Runtime</div><div class="stack-value">{{RUNTIME}}</div></div>
+  </div>
+
+  <details open>
+    <summary>Key Dependencies <span class="count-badge">{{DEPS_COUNT}}</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>Package</th><th>Version</th></tr></thead>
+          <tbody>
+            <!-- <tr><td>{{PACKAGE}}</td><td class="num">{{VERSION}}</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- Only if integrations detected -->
+  <details>
+    <summary>Detected Integrations <span class="count-badge">{{INTEGRATIONS_COUNT}}</span></summary>
+    <div class="detail-body">
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead><tr><th>Integration</th><th>Type</th></tr></thead>
+          <tbody>
+            <!-- <tr><td>{{NAME}}</td><td>{{TYPE}}</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ─── RECOMMENDATIONS (after all tabs, inside .container) ── -->
+<div style="margin-top: 48px;">
+  <h2 class="section-title">Prioritized Recommendations</h2>
+  <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 20px;">Action items sorted by severity. Address critical and high items first.</p>
+  <ol class="rec-list">
+    <!-- 5-15 items, each: -->
+    <!-- <li class="rec-item"><div class="rec-num"></div><div class="rec-body"><div class="rec-title"><span class="badge badge-{{sev}}">{{SEVERITY}}</span> {{TITLE}}</div><div class="rec-desc">{{DESCRIPTION}}</div></div></li> -->
+  </ol>
+</div>
