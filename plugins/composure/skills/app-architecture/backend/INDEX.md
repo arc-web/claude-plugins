@@ -16,12 +16,12 @@
 
 ## Reference Docs (Composure Pro Patterns)
 
-These contain full implementation templates. If the plugin isn't installed, `core.md` provides enough conceptual guidance.
+These contain full implementation templates. If `.claude/composure-pro.json` does not exist, `core.md` provides enough conceptual guidance.
 
-When the composure-pro plugin is installed, load these references from it:
+**To load Pro patterns:** Read `.claude/composure-pro.json`, extract the `pluginRoot` field, then read files from the plugin cache using `{pluginRoot}/` as the base path:
 
-| Pattern | Plugin Reference |
-|---------|-----------------|
+| Pattern | File (relative to pluginRoot) |
+|---------|-------------------------------|
 | Entity Registry | `data-patterns/01-entity-registry-feed.md` |
 | ID Prefixes | `data-patterns/02-id-prefix-convention.md` |
 | 4-Level Auth | `data-patterns/03-four-level-auth.md` |

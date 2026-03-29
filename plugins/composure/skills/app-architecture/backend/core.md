@@ -9,7 +9,7 @@
 3. **RLS Policies** — Row-level security with proper join patterns
 4. **Indexes** — On tenant isolation fields and common query fields
 
-> Migration templates, trigger functions, and RLS policy examples are in **Composure Pro Patterns**. If the composure-pro plugin is installed, read: `data-patterns/01-entity-registry-feed.md`, `data-patterns/02-id-prefix-convention.md`, and the `rls-policies/` directory. If not installed, the rules below provide enough conceptual guidance.
+> Migration templates, trigger functions, and RLS policy examples are in **Composure Pro Patterns**. If `.claude/composure-pro.json` exists, read its `pluginRoot` field, then read `{pluginRoot}/data-patterns/01-entity-registry-feed.md`, `{pluginRoot}/data-patterns/02-id-prefix-convention.md`, and the `{pluginRoot}/rls-policies/` directory directly from the plugin cache. If not available, the rules below provide enough conceptual guidance.
 
 ---
 
@@ -23,7 +23,7 @@ Design your auth with layered access control:
 3. **Privacy group** — what data scope the role grants
 4. **Account link** — how the user connects to tenant data (directly or via contact records)
 
-> Implementation details for auth levels, privacy group tables, and account linking methods are in **Composure Pro Patterns**. If the composure-pro plugin is installed, read: `data-patterns/03-four-level-auth.md` and `data-patterns/04-privacy-role-system.md`.
+> Implementation details for auth levels, privacy group tables, and account linking methods are in **Composure Pro Patterns**. If `.claude/composure-pro.json` exists, read `{pluginRoot}/data-patterns/03-four-level-auth.md` and `{pluginRoot}/data-patterns/04-privacy-role-system.md` from the plugin cache.
 
 ---
 
