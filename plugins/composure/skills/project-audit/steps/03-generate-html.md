@@ -1,44 +1,26 @@
-# Step 3: Generate HTML Report (Background)
+# Step 3: Generate HTML Report
 
-Spawn a **background Agent** to generate the HTML. Do NOT wait for it — proceed to Step 4 immediately.
+Call the `generate_audit_html` MCP tool. It reads the stored findings and scores from graph.db, fills the HTML templates, and writes the report.
 
-## Agent Instructions
+```
+generate_audit_html({
+  audit_run_id: <run_id from Step 1>
+})
+```
 
-Pass all collected audit data (scores, findings, file lists, CVEs, recommendations) to a background agent with `run_in_background: true`.
+The tool returns:
+- `output_path` — path to the generated HTML file
+- `overall_grade`, `overall_score`
+- `summary` — one-line confirmation
 
-The agent must:
+Then open the report:
+```bash
+open <output_path>
+```
 
-1. **Read** the 4 template files (paths relative to plugin root):
-   - `skills/project-audit/templates/audit-header.html` — DOCTYPE, CSS, opening body. Copy VERBATIM.
-   - `skills/project-audit/templates/audit-tabs.html` — Tab bar structure. Omit tabs without data.
-   - `skills/project-audit/templates/audit-tab-panels.html` — Tab panel structure with `{{PLACEHOLDER}}` markers. Replace placeholders with audit data. Omit entire panels for unavailable plugins.
-   - `skills/project-audit/templates/audit-footer.html` — Footer, CTA, branding, JS. Copy VERBATIM. Replace only `{{DATE}}`.
+**No background agent needed.** The MCP tool does the template assembly in <1 second — zero tokens, no waiting.
 
-2. **Generate** the report header between the header template and the tab bar:
-   - `.report-header` with project name, date, file/line counts, grade circle
-   - `.score-grid` with one `.score-card` per available category
-
-3. **Assemble:**
-   ```
-   audit-header.html         (verbatim)
-   report header + score grid (generated)
-   audit-tabs.html            (omit tabs without data)
-   audit-tab-panels.html      (replace {{PLACEHOLDERS}} with data, omit panels without data)
-   audit-footer.html          (verbatim, replace {{DATE}})
-   ```
-
-4. **Write** to `tasks-plans/audits/audit-{YYYY-MM-DD-HHmm}.html`
-
-5. **Open** in browser: `open <path>` (macOS) or `xdg-open <path>` (Linux)
-
-**CRITICAL:** The agent MUST Read the template files and use them as the structure. Replace `{{PLACEHOLDERS}}` with audit data. Do NOT reconstruct CSS, JS, footer URLs, tab HTML, or branding from memory.
-
-## HTML Rules
-
-- Grade colors as inline hex `style` attributes (for print)
-- No external resources — self-contained, works offline
-- No source code — file paths and names only, never code snippets
-- Escape HTML entities
+If the tool returns an error about missing templates, the plugin installation may be incomplete.
 
 ---
 

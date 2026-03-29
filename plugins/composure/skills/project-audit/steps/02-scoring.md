@@ -1,5 +1,9 @@
 # Step 2: Score Calculation
 
+**Scores were already computed by `run_audit` in Step 1.** The grades returned in the tool response are final.
+
+The tool applies these exact rules (documented here for reference — do not re-compute):
+
 ## Category Scoring
 
 **Code Quality (weight 30%):** Start at 100. Deductions:
@@ -8,63 +12,30 @@
 - -15 additional per file over 800 lines (total -30 for an 800+ line file)
 - -3 per function over 150 lines
 - -1 per 5 open tasks in task queue
-- Floor at 0
 
 **Security (weight 25%):** Start at 100. Deductions:
-- -25 per critical CVE
-- -10 per high CVE
-- -3 per moderate CVE
-- -15 per Semgrep ERROR finding
-- -5 per Semgrep WARNING finding
-- -1 per Semgrep INFO finding
-- -3 per missing security header (if --url provided)
-- Floor at 0
+- -25 per critical CVE, -10 per high, -3 per moderate
+- -15 per Semgrep ERROR, -5 per WARNING, -1 per INFO
+- -3 per missing security header
 
 **Testing (weight 25%):**
-- If no tests exist (totalTests == 0): score = 0
-- Otherwise: `score = coverageLines * 0.6 + (passed / totalTests * 100) * 0.4`
-- Clamp to 0-100
+- Zero tests = score 0
+- Otherwise: derived from TESTED_BY edge coverage
 
 **Deployment (weight 20%):**
-- If no checks ran: score = 0
-- Otherwise: `score = (passed / totalChecks) * 100`, then -15 per FAIL, -5 per WARN
-- Floor at 0
+- -15 per FAIL, -5 per WARN
 
-## Weight Redistribution
+## Honesty Rules (enforced by tool)
 
-When a plugin is unavailable, redistribute proportionally:
-```
-adjustedWeight = originalWeight / sumOfAvailableOriginalWeights
-```
+- Zero tests = **F** in Testing
+- Any critical CVE = **F** in Security (score capped at 59)
+- These are not configurable
 
-## Overall Score and Grades
+## CVE Framing Rules (for YOUR summary output)
 
-```
-overallScore = sum(categoryScore * adjustedWeight) for each available category
-```
-
-| Grade | Range   | Color   |
-|-------|---------|---------|
-| A     | 90-100  | #22c55e |
-| B     | 80-89   | #3b82f6 |
-| C     | 70-79   | #eab308 |
-| D     | 60-69   | #f97316 |
-| F     | 0-59    | #ef4444 |
-
-## Honesty Rules
-
-- Zero tests = **F** in Testing, no exceptions
-- Any critical CVE = **F** in Security
-- 5+ FAIL preflight checks = **F** in Deployment
-- Do not inflate grades — honest assessment is the value
-- **Do NOT rationalize poor grades.** An F is an F. Do not say "common in X projects" or "mostly structural" to soften it. State the grade, state the fix.
-
-## CVE Framing Rules (NEVER violate)
-
-- **NEVER diminish transitive CVEs.** A transitive vulnerability ships in the production bundle and is exploitable. "Transitive" describes the FIX PATH (override/upgrade parent), not the severity.
-- **NEVER say** "not in your direct code" or "not your problem" about any CVE. If it's in the dependency tree, it's a production vulnerability.
-- **ALWAYS provide the fix command.** For transitive CVEs: `npm pkg set overrides.{pkg}={safe-version}` or "upgrade {parent-package} which pulls in {vulnerable-package}."
-- **ALWAYS state severity based on the CVE itself**, not on how it entered the dependency tree.
+- **NEVER diminish transitive CVEs.** They ship in production.
+- **ALWAYS provide the fix command.** For transitive: `pnpm update` or override.
+- **NEVER say** "not in your direct code" about any CVE.
 
 ---
 
