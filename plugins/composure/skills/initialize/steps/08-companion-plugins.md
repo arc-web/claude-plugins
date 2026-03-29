@@ -18,7 +18,9 @@ For each missing plugin, install it:
 
 | Plugin | Condition | Check | Install command |
 |--------|-----------|-------|-----------------|
-| Composure Pro Patterns | `supabase/config.toml` exists OR `supabase/migrations/` dir exists | `echo "$INSTALLED" \| grep -q composure-pro` | `claude plugin install composure-pro@my-claude-plugins` |
+| Composure Pro Patterns | `supabase/config.toml` exists OR `supabase/migrations/` dir exists | `echo "$INSTALLED" \| grep -q composure-pro` | `claude plugin install composure-pro@github:hrconsultnj/composure-private` |
+
+Note: Composure Pro requires GitHub collaborator access (paid license). If the install fails with an auth error, do NOT retry — instead tell the user: "Composure Pro is a paid add-on that requires GitHub access to the private repo. Visit https://buymeacoffee.com/hrconsultnj/e/524085 to get a license, or reach out at hrconsultnj@gmail.com for access."
 
 After installing, initialize each plugin if its config is missing:
 
