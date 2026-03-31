@@ -16,6 +16,9 @@ Production-ready animation snippets for React 19 / Next.js 15 projects. Each fil
 | `gsap-horizontal-gallery.tsx` | gsap | Panels should scroll horizontally driven by vertical scroll |
 | `css-hover-transitions.tsx` | none | Hover effects needed without adding a JS animation library |
 | `shared-layout-animation.tsx` | motion | Active indicators, tabs, or cards need to morph between states |
+| `scroll-section-choreography.tsx` | gsap | Full-viewport pinned section with phased content reveal (Apple-style) |
+| `scroll-counter.tsx` | motion | Metric numbers animate from 0 to target on viewport entry |
+| `scroll-sticky-overlay.tsx` | motion | Sticky panel with scroll-driven content swap (feature walkthroughs) |
 
 ## Choosing a Library
 

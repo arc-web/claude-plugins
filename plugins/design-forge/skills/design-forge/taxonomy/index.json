@@ -1,0 +1,345 @@
+{
+  "version": "1.0.0",
+  "description": "Design Forge taxonomy routing index. Claude reads this to map (platform, industry, style) to specific patterns.",
+
+  "dimensions": {
+    "platforms": ["website", "webapp", "mobile"],
+    "industries": ["health", "saas", "fintech", "legal", "ecommerce", "creative", "services", "hospitality"],
+    "styles": ["modern", "minimalistic", "glassmorphism", "futuristic", "brutalist", "organic"]
+  },
+
+  "defaults": {
+    "platform": "webapp",
+    "industry": "saas",
+    "style": "modern"
+  },
+
+  "animation_intensities": {
+    "minimal": {
+      "duration_range": [0.15, 0.3],
+      "stagger": 0.03,
+      "easing": "ease-out",
+      "scroll_effects": false,
+      "description": "Near-instant transitions. Legal, fintech — no distraction."
+    },
+    "gentle": {
+      "duration_range": [0.3, 0.6],
+      "stagger": 0.06,
+      "easing": "[0.16, 1, 0.3, 1]",
+      "scroll_effects": true,
+      "description": "Smooth but restrained. Health, education — builds trust."
+    },
+    "moderate": {
+      "duration_range": [0.4, 0.8],
+      "stagger": 0.08,
+      "easing": "[0.25, 0.46, 0.45, 0.94]",
+      "scroll_effects": true,
+      "description": "Polished feel. SaaS, ecommerce — guides attention."
+    },
+    "expressive": {
+      "duration_range": [0.5, 1.2],
+      "stagger": 0.12,
+      "easing": "[0.22, 1, 0.36, 1]",
+      "scroll_effects": true,
+      "description": "Bold and theatrical. Creative, portfolio — makes a statement."
+    }
+  },
+
+  "scroll_choreography_presets": {
+    "section-fade-sequence": "Sections fade in on scroll with stagger, counters animate on viewport entry",
+    "apple-showcase": "Full-viewport pinned sections, scroll-scrubbed timelines, metric counters, sticky overlays",
+    "parallax-layers": "Multi-layer parallax with depth separation, background moves slower than foreground",
+    "horizontal-narrative": "Vertical scroll drives horizontal panel progression via GSAP containerAnimation"
+  },
+
+  "depth_strategies": {
+    "css-layers": "Box shadows, subtle gradients, z-index layering — no JS libraries needed",
+    "glassmorphism": "Backdrop blur + glass panels + translucent layers for depth",
+    "parallax-3d": "CSS perspective + translateZ for real spatial depth without Three.js",
+    "three-js-ambient": "Lightweight Three.js background (particles, gradient shader) for atmosphere"
+  },
+
+  "mappings": [
+    {
+      "match": { "industry": "health", "platform": "webapp", "style": "modern" },
+      "patterns": {
+        "layouts": ["bento-grid", "sticky-sidebar", "feature-cards"],
+        "animations": ["framer-motion-scroll-reveal", "framer-motion-stagger-list", "shared-layout-animation", "scroll-counter"],
+        "interactions": ["ripple-effect", "hover-underline", "elevated-button"],
+        "canvas": [],
+        "three_js": [],
+        "components": ["GlassPanel", "ScrollProgress"]
+      },
+      "animation_intensity": "gentle",
+      "border_radius": "rounded-xl",
+      "typography": { "display": "Inter", "body": "Inter", "mono": "JetBrains Mono" },
+      "spacing_scale": "generous",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "css-layers",
+      "shadcn_augmentation": ["elevated-cards", "glass-sidebar", "animated-counters", "gradient-buttons"],
+      "notes": "Health apps need trust and calm. Avoid aggressive animations. Use organic easing curves. Warm palettes.",
+      "sections": {
+        "heroes": ["gradient-headline-hero"],
+        "showcases": ["feature-card-grid"],
+        "metrics": ["counter-bar", "stats-showcase"],
+        "social_proof": ["testimonial-carousel", "trust-signals"],
+        "content": ["faq-accordion"],
+        "ctas": ["gradient-cta", "newsletter-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "website-hero"]
+    },
+    {
+      "match": { "industry": "health", "platform": "website", "style": "modern" },
+      "patterns": {
+        "layouts": ["hero-centered", "feature-cards", "bento-grid"],
+        "animations": ["framer-motion-scroll-reveal", "scroll-section-choreography", "scroll-counter"],
+        "interactions": ["elevated-button", "hover-underline"],
+        "canvas": [],
+        "three_js": []
+      },
+      "animation_intensity": "gentle",
+      "border_radius": "rounded-xl",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "css-layers",
+      "notes": "Health landing pages: trust signals, testimonials, metric showcases. No aggressive pinning.",
+      "sections": {
+        "heroes": ["gradient-headline-hero"],
+        "showcases": ["feature-card-grid", "capabilities-bento"],
+        "metrics": ["counter-bar"],
+        "media": ["full-bleed-media"],
+        "social_proof": ["testimonial-carousel", "trust-signals", "logo-marquee"],
+        "content": ["faq-accordion"],
+        "ctas": ["gradient-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "website-hero", "generative-background"]
+    },
+    {
+      "match": { "industry": "saas", "platform": "webapp", "style": "modern" },
+      "patterns": {
+        "layouts": ["bento-grid", "sticky-sidebar", "glassmorphism-dashboard"],
+        "animations": ["framer-motion-stagger-list", "framer-motion-scroll-reveal", "gsap-flip-layout"],
+        "interactions": ["magnetic-button", "tilt-card", "elevated-button"],
+        "canvas": ["grid-field"],
+        "three_js": [],
+        "components": ["GlassPanel", "ScrollProgress", "CustomCursor"]
+      },
+      "animation_intensity": "moderate",
+      "border_radius": "rounded-lg",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "glassmorphism",
+      "shadcn_augmentation": ["elevated-cards", "animated-tabs", "glass-sidebar", "gradient-buttons"],
+      "notes": "SaaS dashboards: data-dense but polished. Moderate animation guides attention without distraction.",
+      "sections": {
+        "heroes": ["gradient-headline-hero"],
+        "showcases": ["feature-card-grid", "capabilities-bento"],
+        "metrics": ["counter-bar"],
+        "content": ["sticky-sidebar-content"],
+        "ctas": ["gradient-cta"]
+      },
+      "assets": ["og-image", "social-media-kit"]
+    },
+    {
+      "match": { "industry": "saas", "platform": "website", "style": "modern" },
+      "patterns": {
+        "layouts": ["hero-split", "bento-grid", "feature-cards"],
+        "animations": ["gsap-scroll-trigger", "gsap-pin-section", "scroll-section-choreography", "scroll-counter"],
+        "interactions": ["magnetic-button", "tilt-card", "text-scramble", "elevated-button"],
+        "canvas": ["grid-field", "point-cloud"],
+        "three_js": ["gradient-background"],
+        "components": ["GlassPanel", "ScrollProgress", "CustomCursor"]
+      },
+      "animation_intensity": "expressive",
+      "border_radius": "rounded-lg",
+      "scroll_choreography": "apple-showcase",
+      "depth_strategy": "glassmorphism",
+      "notes": "SaaS landing pages: bold, impressive, conversion-focused. Full scroll choreography appropriate.",
+      "sections": {
+        "heroes": ["gradient-headline-hero", "product-reveal-hero", "split-media-hero"],
+        "showcases": ["pinned-timeline-showcase", "feature-card-grid", "capabilities-bento"],
+        "metrics": ["counter-bar", "spec-comparison"],
+        "media": ["video-scroll-reveal", "parallax-layers", "full-bleed-media"],
+        "social_proof": ["testimonial-carousel", "logo-marquee"],
+        "content": ["faq-accordion", "interactive-demo"],
+        "ctas": ["gradient-cta", "product-options-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "device-mockup", "generative-background", "website-hero", "quality-showcase"]
+    },
+    {
+      "match": { "industry": "fintech", "platform": "webapp", "style": "modern" },
+      "patterns": {
+        "layouts": ["sticky-sidebar", "bento-grid"],
+        "animations": ["framer-motion-stagger-list", "scroll-counter"],
+        "interactions": ["ripple-effect"],
+        "canvas": [],
+        "three_js": []
+      },
+      "animation_intensity": "minimal",
+      "border_radius": "rounded-md",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "css-layers",
+      "notes": "Finance: precision and trust. Minimal animation. Data tables and charts are the hero, not effects.",
+      "sections": {
+        "heroes": ["gradient-headline-hero"],
+        "metrics": ["stats-showcase"],
+        "social_proof": ["trust-signals"],
+        "content": ["sticky-sidebar-content"],
+        "ctas": ["gradient-cta"]
+      },
+      "assets": ["og-image", "social-media-kit"]
+    },
+    {
+      "match": { "industry": "legal", "platform": "webapp", "style": "minimalistic" },
+      "patterns": {
+        "layouts": ["sticky-sidebar"],
+        "animations": [],
+        "interactions": ["ripple-effect"],
+        "canvas": [],
+        "three_js": []
+      },
+      "animation_intensity": "minimal",
+      "border_radius": "rounded-sm",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "css-layers",
+      "notes": "Legal: conservative, high readability, near-zero animation. Content is king.",
+      "sections": {
+        "heroes": ["gradient-headline-hero"],
+        "metrics": ["stats-showcase"],
+        "social_proof": ["trust-signals"],
+        "content": ["faq-accordion", "sticky-sidebar-content"],
+        "ctas": ["newsletter-cta"]
+      },
+      "assets": ["og-image"]
+    },
+    {
+      "match": { "industry": "ecommerce", "platform": "webapp", "style": "modern" },
+      "patterns": {
+        "layouts": ["bento-grid", "masonry-grid", "feature-cards"],
+        "animations": ["framer-motion-stagger-list", "shared-layout-animation", "gsap-flip-layout"],
+        "interactions": ["magnetic-button", "tilt-card", "elevated-button"],
+        "canvas": [],
+        "three_js": []
+      },
+      "animation_intensity": "moderate",
+      "border_radius": "rounded-lg",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "css-layers",
+      "notes": "E-commerce: product images are hero. Cards need elevation. Quick transitions for browsing.",
+      "sections": {
+        "heroes": ["split-media-hero", "gradient-headline-hero"],
+        "showcases": ["feature-card-grid", "capabilities-bento"],
+        "metrics": ["counter-bar", "spec-comparison"],
+        "media": ["full-bleed-media"],
+        "social_proof": ["testimonial-carousel", "logo-marquee"],
+        "content": ["faq-accordion"],
+        "ctas": ["product-options-cta", "gradient-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "device-mockup", "quality-showcase"]
+    },
+    {
+      "match": { "industry": "creative", "platform": "website", "style": "futuristic" },
+      "patterns": {
+        "layouts": ["hero-centered", "bento-grid", "masonry-grid"],
+        "animations": ["gsap-pin-section", "gsap-horizontal-gallery", "gsap-split-text-reveal", "scroll-section-choreography"],
+        "interactions": ["magnetic-button", "tilt-card", "text-scramble", "cursor-spotlight"],
+        "canvas": ["grid-field", "orbital-ellipses", "point-cloud", "particle-system"],
+        "three_js": ["floating-geometry", "particle-field-3d", "gradient-background"],
+        "components": ["GlassPanel", "ScrollProgress", "CustomCursor", "Scanlines", "Typewriter", "HeroScene", "SoundLayer"]
+      },
+      "animation_intensity": "expressive",
+      "border_radius": "rounded-none",
+      "scroll_choreography": "apple-showcase",
+      "depth_strategy": "three-js-ambient",
+      "notes": "Creative portfolios: maximum expression. All Design Forge components available. Control room aesthetic.",
+      "sections": {
+        "heroes": ["product-reveal-hero", "gradient-headline-hero", "split-media-hero"],
+        "showcases": ["pinned-timeline-showcase", "image-sequence-scroll", "feature-card-grid", "capabilities-bento"],
+        "metrics": ["counter-bar", "spec-comparison"],
+        "media": ["video-scroll-reveal", "parallax-layers", "full-bleed-media"],
+        "social_proof": ["testimonial-carousel", "logo-marquee"],
+        "content": ["interactive-demo", "faq-accordion"],
+        "ctas": ["gradient-cta", "product-options-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "device-mockup", "generative-background", "website-hero", "quality-showcase"]
+    },
+    {
+      "match": { "industry": "creative", "platform": "webapp", "style": "futuristic" },
+      "patterns": {
+        "layouts": ["glassmorphism-dashboard", "bento-grid"],
+        "animations": ["framer-motion-stagger-list", "gsap-flip-layout", "framer-motion-scroll-reveal"],
+        "interactions": ["magnetic-button", "cursor-spotlight", "text-scramble"],
+        "canvas": ["grid-field"],
+        "components": ["GlassPanel", "CustomCursor", "Scanlines"]
+      },
+      "animation_intensity": "moderate",
+      "border_radius": "rounded-none",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "glassmorphism",
+      "notes": "Creative tools/dashboards: visually distinctive but usable. Tone down from portfolio-level.",
+      "sections": {
+        "heroes": ["gradient-headline-hero"],
+        "showcases": ["feature-card-grid", "capabilities-bento"],
+        "metrics": ["counter-bar"],
+        "content": ["sticky-sidebar-content"],
+        "ctas": ["gradient-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "generative-background"]
+    },
+    {
+      "match": { "industry": "services", "platform": "website", "style": "modern" },
+      "patterns": {
+        "layouts": ["hero-centered", "feature-cards", "bento-grid"],
+        "animations": ["framer-motion-scroll-reveal", "scroll-counter"],
+        "interactions": ["ripple-effect", "elevated-button"],
+        "canvas": [],
+        "three_js": []
+      },
+      "animation_intensity": "gentle",
+      "border_radius": "rounded-xl",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "css-layers",
+      "notes": "Trade services: trust, professionalism, mobile-first. Emergency CTA prominent. No tech aesthetic.",
+      "sections": {
+        "heroes": ["gradient-headline-hero"],
+        "showcases": ["feature-card-grid"],
+        "metrics": ["counter-bar", "stats-showcase"],
+        "social_proof": ["testimonial-carousel", "trust-signals"],
+        "content": ["faq-accordion"],
+        "ctas": ["gradient-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "device-mockup"]
+    },
+    {
+      "match": { "industry": "hospitality", "platform": "website", "style": "organic" },
+      "patterns": {
+        "layouts": ["hero-centered", "feature-cards", "masonry-grid"],
+        "animations": ["framer-motion-scroll-reveal", "framer-motion-stagger-list"],
+        "interactions": ["ripple-effect", "hover-underline", "elevated-button"],
+        "canvas": [],
+        "three_js": []
+      },
+      "animation_intensity": "gentle",
+      "border_radius": "rounded-xl",
+      "scroll_choreography": "section-fade-sequence",
+      "depth_strategy": "css-layers",
+      "notes": "Hospitality: warm, atmospheric, photo-driven. Let food/ambiance photography speak. Serif headings for elegance.",
+      "sections": {
+        "heroes": ["gradient-headline-hero", "split-media-hero"],
+        "showcases": ["feature-card-grid", "capabilities-bento"],
+        "metrics": ["stats-showcase"],
+        "media": ["full-bleed-media"],
+        "social_proof": ["testimonial-carousel", "logo-marquee"],
+        "content": ["faq-accordion"],
+        "ctas": ["gradient-cta"]
+      },
+      "assets": ["og-image", "social-media-kit", "website-hero"]
+    }
+  ],
+
+  "fallback_rules": [
+    "If no exact (industry, platform, style) match: try (industry, platform) with default style",
+    "If no (industry, platform) match: try (industry) with default platform and style",
+    "If no industry match: use defaults (saas, webapp, modern)",
+    "Animation intensity can be overridden by user or UX researcher Classification block",
+    "Always load the matched industry, platform, and style markdown files for full context"
+  ]
+}

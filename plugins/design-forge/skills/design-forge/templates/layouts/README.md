@@ -13,6 +13,7 @@ Premium layout patterns ready to copy into any Next.js / React project. All temp
 | `sticky-sidebar` | Documentation, settings pages, long-form content | Sidebar hidden on mobile |
 | `masonry-grid` | Image galleries, testimonials, blog cards | 1 -> 2 -> 3 cols |
 | `glassmorphism-dashboard` | Admin panels, analytics dashboards, control rooms | Sidebar -> bottom bar |
+| `dashboard-modern` | Warm/light dashboard shell (health, SaaS, ecommerce) | Sidebar collapse -> bottom bar |
 
 ## Selection Guide
 

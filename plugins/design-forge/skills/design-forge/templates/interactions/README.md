@@ -13,6 +13,7 @@ Copy-paste micro-interaction patterns for premium web experiences. Every templat
 | `cursor-spotlight` | Radial gradient follows cursor over container | None | Low | Minimal (CSS custom props) |
 | `elastic-scroll` | Overscroll elastic bounce on scrollable areas | None | Medium | Minimal (wheel events) |
 | `hover-underline` | Underline slides in left, out right on hover | None | Low | None (pure CSS) |
+| `elevated-button` | Button with gradient, depth shadow, hover lift, active press | None | Low | None (pure CSS) |
 
 ## Complexity Ratings
 

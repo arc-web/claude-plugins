@@ -46,6 +46,28 @@ Use the complete Design Intelligence Report template from `references/report-tem
 
 Comparison matrices with bundle sizes, performance, use cases, examples.
 
+## Classification Block (Required)
+
+Every report MUST include a `## Classification` block after the title, before the main content. This bridges UX researcher output to the Design Forge taxonomy for automatic pattern routing.
+
+```markdown
+## Classification
+- platform: webapp | website | mobile
+- industry: health | saas | fintech | legal | ecommerce | creative
+- style: modern | minimalistic | glassmorphism | futuristic | brutalist | organic
+- animation_intensity: minimal | gentle | moderate | expressive
+- depth_strategy: css-layers | glassmorphism | parallax-3d | three-js-ambient
+- scroll_choreography: section-fade-sequence | apple-showcase | parallax-layers | horizontal-narrative
+```
+
+Determine values from your research:
+- **platform**: Landing page = website, dashboard = webapp, app = mobile
+- **industry**: Match to the closest taxonomy category
+- **style**: What visual approach fits the research findings
+- **animation_intensity**: Conservative industries = minimal/gentle, bold = moderate/expressive
+- **depth_strategy**: How visual depth is achieved
+- **scroll_choreography**: Conservative = section-fade, bold = apple-showcase
+
 ## Pro Tips for Report Quality
 
 1. **Be Specific**: "Use Framer Motion 11.x" not "use animations"
