@@ -6,20 +6,20 @@
 semgrep --version 2>/dev/null
 ```
 
-If Semgrep is installed, record the version. If not:
+If Semgrep is installed, record the version.
 
-```
-Semgrep is not installed. It provides static analysis with OWASP rulesets.
+If Semgrep is **not** installed:
 
-Install with:
-  brew install semgrep          # macOS (Homebrew)
-  pip install semgrep           # Python pip
-  pipx install semgrep          # Isolated Python install
+1. Detect the best install command from the system installers found in Step 2:
+   - `brew install semgrep` (macOS with Homebrew)
+   - `pipx install semgrep` (isolated Python install)
+   - `pip install semgrep` (Python pip)
 
-Semgrep is optional but enables /sentinel:scan for deep static analysis.
-```
+2. **Use AskUserQuestion** to prompt the user:
+   > "Semgrep enables deep static analysis with OWASP rulesets for `/sentinel:scan`. Would you like me to install it now (`<detected-install-cmd>`) or skip for now?"
 
-Use the detected system installer to recommend the appropriate install command.
+3. **If the user agrees:** Run the install command, then verify with `semgrep --version`. Record the installed version.
+4. **If the user declines:** Record semgrep as `null` in the config and continue. Note the limitation in the final report.
 
 ## Other tools (record if present, do not require):
 
