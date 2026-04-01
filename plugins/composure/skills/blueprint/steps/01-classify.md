@@ -12,8 +12,17 @@ Classify into exactly ONE category:
 | `bug-fix` | Broken behavior with known reproduction | 1-5 files, targeted edits |
 | `migration` | Version upgrade, dependency swap, API migration | 5-50 files, pattern replacement |
 
-If ambiguous, use **AskUserQuestion** to confirm. Do NOT guess.
+## Present Classification
+
+State your classification and reasoning:
+
+"I've classified this as **[type]** because [1-sentence reasoning]."
+
+## Checkpoint
+
+- **If ambiguous** (could be two types): use **AskUserQuestion** to confirm before proceeding.
+- **If clear**: state the classification and move on. Do NOT force a confirmation question on obvious classifications — that wastes a round-trip.
 
 ---
 
-**Next:** Read `steps/02-graph-scan-and-questions.md`
+**Next:** Read `steps/02-graph-scan.md`
