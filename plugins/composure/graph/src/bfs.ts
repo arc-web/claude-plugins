@@ -40,6 +40,81 @@ export function buildAdjacencyList(edges: GraphEdge[]): AdjacencyList {
 }
 
 /**
+ * BFS shortest path from one node to another.
+ * Traverses forward edges only (follows dependency direction).
+ * Returns the path as an ordered list of qualified names, or empty if not found.
+ */
+export function getShortestPath(
+  store: GraphStore,
+  fromQN: string,
+  toQN: string,
+  maxDepth = 10,
+): { path: GraphNode[]; edges: GraphEdge[]; depth: number; found: boolean } {
+  const allEdges = store.getAllEdges();
+  const adj = buildAdjacencyList(allEdges);
+
+  // BFS with parent tracking
+  const parent = new Map<string, string>();
+  const visited = new Set<string>([fromQN]);
+  let frontier = new Set([fromQN]);
+
+  let found = false;
+  for (let depth = 0; depth < maxDepth && frontier.size > 0; depth++) {
+    const nextFrontier = new Set<string>();
+
+    for (const qn of frontier) {
+      // Check both forward and reverse to find ANY connection
+      for (const neighbors of [adj.forward.get(qn), adj.reverse.get(qn)]) {
+        if (!neighbors) continue;
+        for (const neighbor of neighbors) {
+          if (visited.has(neighbor)) continue;
+          visited.add(neighbor);
+          parent.set(neighbor, qn);
+          nextFrontier.add(neighbor);
+
+          if (neighbor === toQN) {
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+      if (found) break;
+    }
+
+    if (found) break;
+    frontier = nextFrontier;
+  }
+
+  if (!found) {
+    return { path: [], edges: [], depth: 0, found: false };
+  }
+
+  // Reconstruct path from parent chain
+  const pathQNs: string[] = [toQN];
+  let current = toQN;
+  while (current !== fromQN && parent.has(current)) {
+    current = parent.get(current)!;
+    pathQNs.unshift(current);
+  }
+
+  // Resolve to full nodes
+  const pathNodes: GraphNode[] = [];
+  for (const qn of pathQNs) {
+    const node = store.getNode(qn);
+    if (node) pathNodes.push(node);
+  }
+
+  // Collect edges along the path
+  const pathSet = new Set(pathQNs);
+  const pathEdges = allEdges.filter(
+    (e) => pathSet.has(e.source_qualified) && pathSet.has(e.target_qualified),
+  );
+
+  return { path: pathNodes, edges: pathEdges, depth: pathQNs.length - 1, found: true };
+}
+
+/**
  * BFS from changed files to find all impacted nodes within N hops.
  *
  * Traverses both forward edges (things this node affects) and reverse

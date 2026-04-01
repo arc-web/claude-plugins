@@ -2,7 +2,7 @@
 /**
  * MCP server for the Composure code-review-graph.
  *
- * Registers 11 tools for building, querying, reviewing, auditing, and
+ * Registers 13 tools for building, querying, reviewing, auditing, and
  * visualizing the code knowledge graph. Uses stdio transport.
  */
 
@@ -21,6 +21,8 @@ import { generateGraphHtmlTool } from "./tools/generate-graph-html.js";
 import { entityScope } from "./tools/entity-scope.js";
 import { runAudit } from "./tools/run-audit.js";
 import { generateAuditHtml } from "./tools/generate-audit-html.js";
+import { searchReferences } from "./tools/search-references.js";
+import { getDependencyChain } from "./tools/get-dependency-chain.js";
 
 const server = new McpServer({
   name: "composure-graph",
@@ -354,6 +356,41 @@ server.tool(
   },
   async (params) => {
     const result = generateAuditHtml(params);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ── Tool 12: search_references ────────────────────────────────────
+
+server.tool(
+  "search_references",
+  "Search for string patterns across the repo with graph context enrichment. Like grep but returns matches with containing node, entity membership, importer count, and file role. Use for finding all references to a skill name, function, pattern, or any text string.",
+  {
+    pattern: z.string().describe("Regex pattern to search for (e.g., '/composure:blueprint', 'useAuth')."),
+    scope: z.string().optional().describe("File glob to narrow search (e.g., '**/*.md', 'plugins/composure/skills/**'). Defaults to entire repo."),
+    context_lines: z.number().default(1).describe("Lines of context before/after each match (like grep -C). Default: 1."),
+    max_results: z.number().default(50).describe("Maximum results to return. Default: 50."),
+    repo_root: z.string().optional().describe("Repository root path. Auto-detected if omitted."),
+  },
+  async (params) => {
+    const result = searchReferences(params);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ── Tool 13: get_dependency_chain ─────────────────────────────────
+
+server.tool(
+  "get_dependency_chain",
+  "Find the shortest path between two code entities in the graph. Shows how two files, functions, or types are connected through imports and calls. Use for understanding dependency relationships and tracing how code connects.",
+  {
+    from: z.string().describe("Source node — name, qualified name, or file path."),
+    to: z.string().describe("Target node — name, qualified name, or file path."),
+    max_depth: z.number().default(10).describe("Maximum hops to search. Default: 10."),
+    repo_root: z.string().optional().describe("Repository root path. Auto-detected if omitted."),
+  },
+  async (params) => {
+    const result = getDependencyChain(params);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   },
 );

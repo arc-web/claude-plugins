@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS nodes (
     params TEXT,
     return_type TEXT,
     modifiers TEXT,
+    summary TEXT,
     is_test INTEGER DEFAULT 0,
     file_hash TEXT,
     extra TEXT DEFAULT '{}',
@@ -145,6 +146,9 @@ export class GraphStore {
     this.db.exec("PRAGMA journal_mode = WAL");
     this.db.exec("PRAGMA busy_timeout = 30000");
     this.db.exec(SCHEMA_SQL);
+
+    // Schema migrations for existing databases
+    try { this.db.exec("ALTER TABLE nodes ADD COLUMN summary TEXT"); } catch { /* column already exists */ }
   }
 
   /** Expose the raw database for audit-store and other modules. */
@@ -182,15 +186,15 @@ export class GraphStore {
     const now = Date.now() / 1000;
     const stmt = this.db.prepare(`
       INSERT INTO nodes (kind, name, qualified_name, file_path, line_start, line_end,
-                         language, parent_name, params, return_type, modifiers,
+                         language, parent_name, params, return_type, modifiers, summary,
                          is_test, file_hash, extra, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(qualified_name) DO UPDATE SET
         kind=excluded.kind, name=excluded.name, file_path=excluded.file_path,
         line_start=excluded.line_start, line_end=excluded.line_end,
         language=excluded.language, parent_name=excluded.parent_name,
         params=excluded.params, return_type=excluded.return_type,
-        modifiers=excluded.modifiers, is_test=excluded.is_test,
+        modifiers=excluded.modifiers, summary=excluded.summary, is_test=excluded.is_test,
         file_hash=excluded.file_hash, extra=excluded.extra, updated_at=excluded.updated_at
     `);
     const info = stmt.run(
@@ -205,6 +209,7 @@ export class GraphStore {
       node.params ?? null,
       node.return_type ?? null,
       node.modifiers ?? null,
+      node.summary ?? null,
       node.is_test ? 1 : 0,
       fileHash ?? null,
       JSON.stringify(node.extra ?? {}),
@@ -287,11 +292,11 @@ export class GraphStore {
     if (words.length === 0) return [];
 
     const conditions = words.map(
-      () => "(name LIKE ? OR qualified_name LIKE ?)",
+      () => "(name LIKE ? OR qualified_name LIKE ? OR summary LIKE ?)",
     );
     const params: (string | number)[] = [];
     for (const w of words) {
-      params.push(`%${w}%`, `%${w}%`);
+      params.push(`%${w}%`, `%${w}%`, `%${w}%`);
     }
 
     const sql = `SELECT * FROM nodes WHERE ${conditions.join(" AND ")} LIMIT ?`;

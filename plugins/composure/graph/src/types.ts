@@ -37,6 +37,7 @@ export interface NodeInfo {
   params?: string;
   return_type?: string;
   modifiers?: string;
+  summary?: string;
   is_test: boolean;
   extra?: Record<string, unknown>;
 }
@@ -65,6 +66,7 @@ export interface GraphNode {
   params: string | null;
   return_type: string | null;
   modifiers: string | null;
+  summary: string | null;
   is_test: boolean;
   file_hash: string | null;
   extra: Record<string, unknown>;

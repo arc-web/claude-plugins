@@ -336,6 +336,44 @@ export class CodeParser {
     }
   }
 
+  // ── JSDoc extraction ─────────────────────────────────────────────
+
+  /**
+   * Extract the first sentence of a JSDoc comment preceding a node.
+   * Only for exported functions — internal helpers don't need searchable summaries.
+   */
+  private extractJsDocSummary(node: Node): string | undefined {
+    // Check if this node is inside an export_statement
+    const parent = node.parent;
+    const isExported = parent?.type === "export_statement"
+      || (parent?.type === "lexical_declaration" && parent?.parent?.type === "export_statement");
+    if (!isExported) return undefined;
+
+    // Find the preceding sibling that's a comment
+    const exportNode = parent?.type === "export_statement" ? parent : parent?.parent;
+    const commentNode = exportNode?.previousNamedSibling ?? node.previousNamedSibling;
+    if (!commentNode || commentNode.type !== "comment") return undefined;
+
+    const text = getNodeText(commentNode);
+    if (!text.startsWith("/**")) return undefined;
+
+    // Extract content between /** and */, strip * prefixes
+    const content = text
+      .replace(/^\/\*\*\s*/, "")
+      .replace(/\s*\*\/$/, "")
+      .split("\n")
+      .map((line) => line.replace(/^\s*\*\s?/, "").trim())
+      .filter((line) => line && !line.startsWith("@"))
+      .join(" ")
+      .trim();
+
+    if (!content) return undefined;
+
+    // Take first sentence (up to first period followed by space/end, or first 150 chars)
+    const firstSentence = content.match(/^(.+?\.)\s/)?.[1] ?? content;
+    return firstSentence.length > 150 ? firstSentence.slice(0, 147) + "..." : firstSentence;
+  }
+
   // ── Node handlers (called from extractFromTree) ──────────────────
 
   private handleClass(
@@ -414,6 +452,7 @@ export class CodeParser {
     const isTest = isTestFunction(name, filePath);
     const qualified = qualify(name, filePath, enclosingClass);
 
+    const summary = isTest ? undefined : this.extractJsDocSummary(child);
     nodes.push({
       kind: isTest ? "Test" : "Function", name, file_path: filePath,
       line_start: child.startPosition.row + 1,
@@ -421,6 +460,7 @@ export class CodeParser {
       language, parent_name: enclosingClass ?? undefined,
       params: getParams(child) ?? undefined,
       return_type: getReturnType(child) ?? undefined,
+      summary,
       is_test: isTest,
     });
 
@@ -454,6 +494,7 @@ export class CodeParser {
       const isTest = isTestFunction(name, filePath);
       const qualified = qualify(name, filePath, enclosingClass);
 
+      const summary = isTest ? undefined : this.extractJsDocSummary(child);
       nodes.push({
         kind: isTest ? "Test" : "Function", name, file_path: filePath,
         line_start: valueNode.startPosition.row + 1,
@@ -461,6 +502,7 @@ export class CodeParser {
         language, parent_name: enclosingClass ?? undefined,
         params: getParams(valueNode) ?? undefined,
         return_type: getReturnType(valueNode) ?? undefined,
+        summary,
         is_test: isTest,
       });
 

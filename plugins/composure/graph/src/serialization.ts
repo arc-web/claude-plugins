@@ -31,6 +31,7 @@ export function rowToNode(row: Record<string, unknown>): GraphNode {
     params: (row.params as string) ?? null,
     return_type: (row.return_type as string) ?? null,
     modifiers: (row.modifiers as string) ?? null,
+    summary: (row.summary as string) ?? null,
     is_test: (row.is_test as number) === 1,
     file_hash: (row.file_hash as string) ?? null,
     extra: JSON.parse((row.extra as string) ?? "{}") as Record<string, unknown>,
@@ -66,6 +67,7 @@ export function nodeToDict(n: GraphNode): Record<string, unknown> {
     parent_name: n.parent_name,
     params: n.params,
     return_type: n.return_type,
+    ...(n.summary ? { summary: n.summary } : {}),
     is_test: n.is_test,
   };
 }
