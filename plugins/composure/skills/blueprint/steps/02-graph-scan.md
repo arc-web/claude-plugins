@@ -77,6 +77,11 @@ Include these in the same AskUserQuestion call as 2b. Ask ONLY questions the gra
 1. Can it be done incrementally (file-by-file) or does it require a big-bang switch?
 2. Are there breaking changes in the target version? (check Context7 if needed)
 
----
+## STOP
 
-**Next:** Read `steps/03-impact-analysis.md`
+Call AskUserQuestion now with scope confirmation + clarifying questions. **Do NOT read step 03 until the user has responded.**
+
+After the user responds:
+- Scope confirmed → read `steps/03-impact-analysis.md`
+- Files missing → run additional graph queries for the areas they mention, re-present, ask again
+- Wrong direction → go back to `steps/01-classify.md`

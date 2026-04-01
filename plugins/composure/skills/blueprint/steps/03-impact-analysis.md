@@ -38,9 +38,9 @@ Then present:
 
 Which direction do you want to go?"
 
-Use **AskUserQuestion** with the approaches as options.
+Use **AskUserQuestion** with the approaches as options. **STOP and wait for the user's response.** Do NOT proceed to step 04a until they choose an approach.
 
-**If the approach is obvious** from the graph scan and impact analysis (no genuine choice), state it and move on:
+**If the approach is obvious** from the graph scan and impact analysis (no genuine choice), state it and move on — no AskUserQuestion needed:
 
 "Based on the impact analysis, the approach is [X] because [reasoning]. Moving to blueprint."
 
@@ -48,4 +48,4 @@ Do NOT force a question when there's only one sensible path — that wastes a ro
 
 ---
 
-**Next:** Read `steps/04a-load-docs.md`
+**After this step completes:** Read `steps/04a-load-docs.md`
