@@ -14,7 +14,17 @@ While writing the spec, I need clarity on:
 
 Review the blueprint and answer these, then tell me to start — or adjust anything first."
 
-Use **AskUserQuestion** with the specific questions.
+Use **AskUserQuestion** with the specific questions. **STOP and wait for the user's response.**
+
+### After the user answers: UPDATE the blueprint
+
+The blueprint on disk must reflect the final agreed-upon design. After the user answers gap questions:
+
+1. Re-read the blueprint file
+2. Update the relevant sections (Decisions, Implementation Spec, or wherever the gap was) to incorporate the user's answer
+3. Write the updated blueprint back to disk
+
+Do NOT leave the blueprint in a pre-answer state. The blueprint is the contract — it must match what was agreed.
 
 ## If no gaps (clean handoff)
 
