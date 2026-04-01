@@ -10,7 +10,7 @@ Call list_graph_stats() to check if the code-review graph is built.
 
 - **Graph available**: full audit mode (all steps)
 - **No graph**: limited mode — skip Step 3 (architecture), use bash fallbacks in Steps 1-2
-- **`--quick` flag**: skip Steps 3 and graph parts of Step 2
+- **`--quick` flag**: fast health snapshot — run Steps 0 → 1 → 3 → 7 only. Skip Steps 2 (decomposition deep-dive), 4 (security), 5 (quality census), 6 (dependencies). Architecture (Step 3) is still included if graph is available — it's the most valuable check when walking into a project. Security and dependency analysis are handled by `/sentinel:scan` and `/shipyard:deps-check` separately.
 
 If graph is available but stale (last_updated older than latest commit), rebuild:
 ```

@@ -11,6 +11,7 @@ Classify into exactly ONE category:
 | `refactor` | Restructuring without behavior change | 5-20 files, moves + edits |
 | `bug-fix` | Broken behavior with known reproduction | 1-5 files, targeted edits |
 | `migration` | Version upgrade, dependency swap, API migration | 5-50 files, pattern replacement |
+| `integration` | Third-party service/SDK connection, API client, webhook setup | 3-12 files, new client + tests |
 
 ## Present Classification
 

@@ -205,15 +205,15 @@ End with verification tasks.}
 
 ## Section Inclusion by Classification
 
-| Section | new-feature | enhancement | refactor | bug-fix | migration |
-|---------|:-----------:|:-----------:|:--------:|:-------:|:---------:|
-| Context | Yes | Yes | Yes | Yes | Yes |
-| Related Code | Yes | Yes | Yes | Yes | Yes |
-| Decisions | Yes | Yes | Yes | If ambiguous | Yes |
-| Impact Analysis | Yes | Yes | Yes | If graph available | Yes |
-| Files to Touch | Yes | Yes | Yes | Yes | Yes |
-| Preservation Boundaries | Yes | Yes | If applicable | Skip | Yes |
-| Implementation Spec | Yes | Yes | Yes | Yes | Yes |
-| Risks | Yes | Yes | Yes | If applicable | Yes |
-| Verification | Yes | Yes | Yes | Yes (repro = scenario 1) | Yes |
-| Checklist | Yes | Yes | Yes | Yes | Yes |
+| Section | new-feature | enhancement | refactor | bug-fix | migration | integration |
+|---------|:-----------:|:-----------:|:--------:|:-------:|:---------:|:-----------:|
+| Context | Yes | Yes | Yes | Yes | Yes | Yes |
+| Related Code | Yes | Yes | Yes | Yes | Yes | Yes |
+| Decisions | Yes | Yes | Yes | If ambiguous | Yes | Yes |
+| Impact Analysis | Yes | Yes | Yes | If graph available | Yes | Yes |
+| Files to Touch | Yes | Yes | Yes | Yes | Yes | Yes |
+| Preservation Boundaries | Yes | Yes | If applicable | Skip | Yes | Yes |
+| Implementation Spec | Yes | Yes | Yes | Yes | Yes | Yes |
+| Risks | Yes | Yes | Yes | If applicable | Yes | Yes |
+| Verification | Yes | Yes | Yes | Yes (repro = scenario 1) | Yes | Yes |
+| Checklist | Yes | Yes | Yes | Yes | Yes | Yes |

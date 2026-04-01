@@ -12,6 +12,7 @@ Read `.claude/no-bandaids.json` for stack info. Load architecture docs from `/ap
 | `enhancement` | Only the categories matching affected files (see category mapping below) |
 | `refactor` | `frontend/core.md` for decomposition rules + the category matching affected files |
 | `migration` | The category matching the migrated framework + Query Context7 for the target version's migration guide |
+| `integration` | Load `/integration-builder` skill (steps as reference) + Context7 for target SDK docs + `sdks/INDEX.md` for cross-cutting libs |
 
 ## Category mapping
 
@@ -24,6 +25,7 @@ Match changed files to the right architecture category:
 | Next.js app router, server components, server actions | `fullstack/nextjs/` | Next.js specific patterns and conventions |
 | React Native, Expo, mobile screens | `mobile/` | Expo, Kotlin, Swift guides |
 | AI SDK, external SDK integrations | `sdks/` | AI SDK validation rules, SDK integration patterns |
+| Third-party SDK, API client, webhook handler | `integration-builder/` | Integration tiers, auth patterns, webhook patterns, error handling, testing |
 
 If changed files span multiple categories (e.g., a feature touches both `frontend/` and `backend/`), load both.
 

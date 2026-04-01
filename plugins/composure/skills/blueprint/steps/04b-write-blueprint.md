@@ -1,6 +1,6 @@
 # Step 4b: Write Blueprint File
 
-Read `BLUEPRINT-TEMPLATE.md` in this skill's directory for the full template structure, section rules, and classification matrix.
+Read `templates/04b-blueprint-document.md` in this skill's directory for the full template structure, section rules, and classification matrix.
 
 Create `tasks-plans/blueprints/` directory if needed.
 
@@ -12,7 +12,7 @@ Where `{slug}` is a 2-4 word kebab-case summary (e.g., `user-roles-2026-03-28.md
 
 ## Writing Process
 
-Work through each section defined in `BLUEPRINT-TEMPLATE.md`:
+Work through each section defined in `templates/04b-blueprint-document.md`:
 
 1. **Context** — what and why, link to research if applicable
 2. **Related Code** — from step 02 graph scan

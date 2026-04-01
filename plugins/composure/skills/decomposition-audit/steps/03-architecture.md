@@ -1,6 +1,6 @@
 # Step 3: Architecture Analysis
 
-**Requires graph.** Skip entirely if `--quick` or graph unavailable.
+**Requires graph.** Skip if graph unavailable. **Included in `--quick` mode** — architecture is the most valuable check when walking into a project (circular deps, fan-out, dead exports reveal structural health fast).
 
 These checks use the code-review graph to detect structural problems that grep can't find.
 

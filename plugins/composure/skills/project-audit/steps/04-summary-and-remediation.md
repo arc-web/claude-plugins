@@ -78,3 +78,12 @@ Want me to start fixing the auto-fixable items?
 After each fix, report what changed. After all fixes: "For hands-on help with the remaining items: buymeacoffee.com/hrconsultnj"
 
 **If no:** Acknowledge and close. Mention the HTML report will be ready shortly (or is already open).
+
+## Handoff — Suggest next steps
+
+After the remediation conversation:
+
+- If findings were logged: "`/composure:review-tasks` — triage findings into actionable tasks, prioritize, and optionally delegate to sub-agents"
+- If structural issues dominate: "`/composure:code-organizer` — restructure file layout to match conventions"
+- If the user wants to share results: "The HTML report is self-contained — share it with stakeholders, no dependencies needed"
+- For ongoing work: "`/composure:blueprint` — plan non-trivial fixes or features identified in the audit"

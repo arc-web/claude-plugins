@@ -35,6 +35,14 @@ If yes:
   - Naming convention: {convention}
   ```
 
+## 6. Handoff — Suggest next steps
+
+After reorganization is complete and verified:
+
+- "`/composure:review-delta` — review what changed before committing (if not committing immediately)"
+- "`/composure:decomposition-audit --quick` — verify the restructure improved health scores"
+- If the user is preparing for launch: "`/shipyard:preflight` — check launch readiness"
+
 ---
 
 **Done.**

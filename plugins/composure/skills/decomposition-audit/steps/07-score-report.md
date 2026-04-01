@@ -14,7 +14,12 @@ Use findings from Steps 1-6 to assign grades:
 | **Dependencies** | 0 CVEs, all current | 0 CVEs, <5 outdated | Low CVEs, 1+ major behind | High CVEs | Critical CVEs + major gaps |
 | **Test Coverage** | >80% tested | 60-80% | 40-60% | 20-40% | <20% |
 
-If `--quick` was used (Steps 3 skipped), mark Architecture as "N/A — run full audit for architecture grade".
+If `--quick` was used, mark skipped categories:
+- Security: "N/A — run `/sentinel:scan` or full audit"
+- Code Quality: "N/A — run full audit"
+- Dependencies: "N/A — run `/shipyard:deps-check` or full audit"
+- Test Coverage: "N/A — run full audit"
+- Architecture: Grade normally if graph was available; "N/A" if graph was also unavailable
 
 If `run_audit` from Step 0 returned grades, merge them: use the LOWER grade between graph audit and our extended checks (conservative).
 
@@ -132,6 +137,25 @@ After the report, rank remediation items by:
 2. **Churn frequency** — files changed often (`git log --oneline FILE | wc -l`)
 3. **Coupling** — fix circular deps before decomposing individual files
 4. **Quick wins** — dead exports and suppressions are fast to clean up
+
+## 7f. Handoff — Suggest next steps
+
+Based on what the audit found, guide the user to the right next skill:
+
+```
+What to do next:
+```
+
+| If the audit found... | Suggest |
+|---|---|
+| Structural issues (misplaced files, naming violations, mixed concerns) | "`/composure:code-organizer` — restructure file layout to match framework conventions" |
+| Critical or High priority tasks | "`/composure:review-tasks batch` — process tasks sequentially, or `delegate` for parallel" |
+| Security findings (CVEs, suppressions, hardcoded secrets) | "`/sentinel:scan` — deep security analysis with OWASP rulesets" |
+| Outdated dependencies | "`/shipyard:deps-check` — safe upgrade recommendations with CVE blocking" |
+| Low test coverage | "`/testbench:generate` — generate tests for uncovered files" |
+| Clean report (all A/B grades) | "Codebase is healthy. Use `/composure:blueprint` to plan your next feature." |
+
+Always suggest: "Full report: `tasks-plans/audits/health-{date}.md`"
 
 ---
 
