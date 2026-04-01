@@ -19,3 +19,16 @@ Libraries used across multiple categories — validation, AI, payments, email, a
 If any of these libraries appear in `package.json` dependencies, check `.claude/frameworks/sdks/generated/` for project-level Context7 docs.
 
 These docs complement category-specific docs — a Next.js project loads `fullstack/nextjs/` AND `sdks/` if it uses AI SDK + Stripe.
+
+## Integration Builder
+
+For full integration workflows — API client scaffolding, auth setup, webhook handling, testing — use `/composure:integration-builder`. It provides the complete integration lifecycle:
+
+- Stack detection (TypeScript, Python, Go, Rust, Ruby)
+- SDK discovery + Context7 live documentation
+- Integration tier selection (Official SDK, Direct API, Unified API, MCP Gateway, OpenAPI SDK Gen)
+- Monorepo-aware scaffolding
+- Auth, webhook, and error handling patterns
+- Test scaffolding (MSW/Pact for TS, language-appropriate for others)
+
+`sdks/INDEX.md` handles **doc detection for libraries already in the project**. `integration-builder` handles **adding new third-party service connections from scratch**.

@@ -13,6 +13,7 @@ import { isSqlParseable, parseSqlFile } from "./sql-parser.js";
 import { isPkgParseable, parsePkgFile } from "./pkg-parser.js";
 import { isConfigParseable, parseConfigFile } from "./config-parser.js";
 import { isMdParseable, parseMdFile } from "./md-parser.js";
+import { isShParseable, parseShFile } from "./sh-parser.js";
 import { detectAndStoreEntities } from "./entities.js";
 import { GraphStore } from "./store.js";
 import type { BuildResult, NodeInfo, EdgeInfo } from "./types.js";
@@ -156,6 +157,7 @@ function routeParse(
   if (isPkgParseable(filePath)) return parsePkgFile(filePath);
   if (isConfigParseable(filePath)) return parseConfigFile(filePath);
   if (isMdParseable(filePath)) return parseMdFile(filePath);
+  if (isShParseable(filePath)) return parseShFile(filePath);
   if (tsParser) return tsParser.parseFile(filePath);
   return { nodes: [], edges: [] };
 }
@@ -307,7 +309,7 @@ export async function singleFileUpdate(
 
   // Lazy-init tree-sitter only if needed
   let tsParser: CodeParser | null = null;
-  if (!isSqlParseable(absPath) && !isPkgParseable(absPath) && !isConfigParseable(absPath) && !isMdParseable(absPath)) {
+  if (!isSqlParseable(absPath) && !isPkgParseable(absPath) && !isConfigParseable(absPath) && !isMdParseable(absPath) && !isShParseable(absPath)) {
     tsParser = new CodeParser();
     await tsParser.init();
   }
@@ -329,7 +331,7 @@ export async function singleFileUpdate(
           const depHash = fileHash(dep);
           const existing = store.getNode(dep);
           if (existing?.file_hash !== depHash) {
-            if (!depTsParser && !isSqlParseable(dep) && !isPkgParseable(dep) && !isConfigParseable(dep) && !isMdParseable(dep)) {
+            if (!depTsParser && !isSqlParseable(dep) && !isPkgParseable(dep) && !isConfigParseable(dep) && !isMdParseable(dep) && !isShParseable(dep)) {
               depTsParser = new CodeParser();
               await depTsParser.init();
             }
