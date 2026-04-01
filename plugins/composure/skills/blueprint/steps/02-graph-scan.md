@@ -1,8 +1,27 @@
 # Step 2: Graph Pre-Scan and Scope Confirmation
 
-**Skip if `--skip-graph`, `--quick`, or graph MCP unavailable.** If skipping, fall back to asking the full question set (see section 2c) and proceed to step 03.
+**Skip if `--skip-graph`, `--quick`, or graph MCP unavailable.** If skipping, fall back to asking the full question set (see section 2d) and proceed to step 03.
 
-## 2a. Graph Pre-Scan
+## 2a. Ensure Graph is Current
+
+Before querying, check when the graph was last updated:
+
+```
+list_graph_stats()
+```
+
+Check the `last_updated` timestamp:
+
+- **Within the last hour** → graph is fresh (likely from this session or Composure's PostToolUse auto-updates). Skip rebuild, proceed to 2b.
+- **Older than 1 hour** → graph may be stale. Rebuild incrementally:
+  ```
+  build_or_update_graph()
+  ```
+  This only re-parses files that changed since the last build — takes seconds when few files changed, longer on first build.
+
+A stale graph returns sparse edges and unreliable caller/test relationships. Querying a stale graph defeats the purpose of graph-powered planning.
+
+## 2b. Graph Pre-Scan
 
 Use the code graph to find related code BEFORE asking the user anything.
 
@@ -31,9 +50,9 @@ This eliminates questions the graph can answer:
 | `bug-fix` | Finds the files involved automatically | Reproduction path? Regression or latent? |
 | `migration` | Finds all usages of the thing being migrated | Incremental or big-bang? Breaking changes? |
 
-If graph is unavailable: mention "Code graph not available — run `/composure:build-graph` for smarter pre-scanning." Then fall back to full question set (2c).
+If graph is unavailable: mention "Code graph not available — run `/composure:build-graph` for smarter pre-scanning." Then fall back to full question set (2d).
 
-## 2b. Present Findings and Confirm Scope
+## 2c. Present Findings and Confirm Scope
 
 Present graph findings to the user with a scope confirmation:
 
@@ -46,13 +65,13 @@ Based on this, the feature touches **[areas: auth, billing, UI, etc.]**.
 
 Is this the right scope? Anything the graph missed that you know about?"
 
-Use **AskUserQuestion** combining scope confirmation with the clarifying questions from 2c below. This keeps it to a single round-trip when scope is clear.
+Use **AskUserQuestion** combining scope confirmation with the clarifying questions from 2d below. This keeps it to a single round-trip when scope is clear.
 
 If the user says files are missing, run additional graph queries for the areas they mention. If they say wrong direction, re-classify (go back to step 01).
 
-## 2c. Clarifying Questions (only what the graph didn't answer)
+## 2d. Clarifying Questions (only what the graph didn't answer)
 
-Include these in the same AskUserQuestion call as 2b. Ask ONLY questions the graph couldn't answer — typically 1-3 questions, not a full interrogation.
+Include these in the same AskUserQuestion call as 2c. Ask ONLY questions the graph couldn't answer — typically 1-3 questions, not a full interrogation.
 
 ### Questions by classification:
 
