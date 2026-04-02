@@ -66,6 +66,8 @@ Start building:
 
 **Which workflow applies?** If git log shows commits from other authors and the user hasn't worked in this repo before, default to the collaborator workflow. If the user just created the project (scaffolded via Blueprint), use the "just scaffolded" workflow. Otherwise, use the returning workflow.
 
+**Docs:** [composure-pro.com](https://composure-pro.com)
+
 ---
 
 **Next:** Read `steps/12-claude-md-offer.md`
