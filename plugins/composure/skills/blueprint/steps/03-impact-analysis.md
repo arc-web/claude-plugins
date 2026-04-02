@@ -11,7 +11,13 @@ Now that we know the exact files (from graph pre-scan + user confirmation), do d
 3. **Decomposition opportunities**: `find_large_functions({ file_pattern: <affected directory> })` — anything already oversized in the area
 4. **Test gaps**: `query_graph({ pattern: "tests_for", target: <component> })` — what's untested
 
-## 3b. Summarize Impact
+## 3b. Read Impacted Files
+
+If the impact radius revealed files you haven't read yet (new dependents, callers from unexpected areas), **Read them now**. The graph tells you they're connected — reading tells you how they use the code and what will break.
+
+Focus on: files with the most importers (highest blast risk), and any file the graph flagged as untested.
+
+## 3c. Summarize Impact
 
 Present the findings:
 - **Direct impact**: N files import from the affected files
@@ -19,7 +25,7 @@ Present the findings:
 - **Large functions**: any over 100 lines in the affected area
 - **Missing tests**: functions with no test coverage
 
-## 3c. Approach Direction (checkpoint)
+## 3d. Approach Direction (checkpoint)
 
 If the impact analysis reveals **multiple viable approaches with different tradeoffs**, present them to the user before writing the blueprint.
 

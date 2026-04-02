@@ -52,26 +52,34 @@ This eliminates questions the graph can answer:
 
 If graph is unavailable: mention "Code graph not available — run `/composure:build-graph` for smarter pre-scanning." Then fall back to full question set (2d).
 
-## 2c. Present Findings and Confirm Scope
+## 2c. Read the Files the Graph Found
 
-Present graph findings to the user with a scope confirmation:
+**Do NOT stop at graph results.** The graph tells you WHERE — now Read the files to understand WHAT and WHY.
 
-"The graph found these related files:
-- `path/to/file-a.ts` — [why it's relevant]
-- `path/to/file-b.tsx` — [why it's relevant]
+1. From the graph results, identify the **key files** (typically 3-8 files most relevant to the task)
+2. **Read them directly** — don't spawn agents. If the graph found <10 files, Read them in the main context. This is faster, cheaper, and gives you the full content (domain details, comments, implementation patterns) that structural queries miss.
+3. Only spawn agents if the graph identified 10+ relevant files that can't all fit in context. In that case, give agents EXACT file paths from the graph — never "search broadly for X."
+
+## 2d. Present Findings and Confirm Scope
+
+Present findings from BOTH the graph structure AND the file contents:
+
+"The graph found these related files (I've read them):
+- `path/to/file-a.ts` — [what it does, key functions, patterns to follow]
+- `path/to/file-b.tsx` — [what it does, how it connects to the task]
 - ...
 
 Based on this, the feature touches **[areas: auth, billing, UI, etc.]**.
 
-Is this the right scope? Anything the graph missed that you know about?"
+Is this the right scope? Anything I missed?"
 
-Use **AskUserQuestion** combining scope confirmation with the clarifying questions from 2d below. This keeps it to a single round-trip when scope is clear.
+Use **AskUserQuestion** combining scope confirmation with the clarifying questions from 2e below. This keeps it to a single round-trip when scope is clear.
 
-If the user says files are missing, run additional graph queries for the areas they mention. If they say wrong direction, re-classify (go back to step 01).
+If the user says files are missing, run additional graph queries for the areas they mention, Read the new files, re-present, ask again. If they say wrong direction, re-classify (go back to step 01).
 
-## 2d. Clarifying Questions (only what the graph didn't answer)
+## 2e. Clarifying Questions (only what reading didn't answer)
 
-Include these in the same AskUserQuestion call as 2c. Ask ONLY questions the graph couldn't answer — typically 1-3 questions, not a full interrogation.
+Include these in the same AskUserQuestion call as 2d. Ask ONLY questions that neither the graph structure NOR the file contents answered — typically 1-2 questions, not a full interrogation.
 
 ### Questions by classification:
 
