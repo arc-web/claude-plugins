@@ -17,7 +17,7 @@ If a lint script exists in `package.json`, run it. Common names: `lint`, `eslint
 
 ## 4. Rebuild graph
 
-Call `build_or_update_graph({ full_rebuild: true })` since file paths changed. This keeps the graph accurate for subsequent `/review-pr`, `/review-delta`, and PostToolUse hooks. If `--no-graph` was used, skip.
+Call `build_or_update_graph({ full_rebuild: true })` since file paths changed. This keeps the graph accurate for subsequent `/review-pr`, `/review`, and PostToolUse hooks. If `--no-graph` was used, skip.
 
 ## 5. Prompt commit
 
@@ -39,8 +39,8 @@ If yes:
 
 After reorganization is complete and verified:
 
-- "`/composure:review-delta` — review what changed before committing (if not committing immediately)"
-- "`/composure:decomposition-audit --quick` — verify the restructure improved health scores"
+- "`/composure:review` — review what changed before committing (if not committing immediately)"
+- "`/composure:audit --quick` — verify the restructure improved health scores"
 - If the user is preparing for launch: "`/shipyard:preflight` — check launch readiness"
 
 ---

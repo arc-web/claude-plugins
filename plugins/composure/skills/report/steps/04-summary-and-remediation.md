@@ -39,7 +39,7 @@ Map findings to commands:
 | No test coverage | Install `@vitest/coverage-v8` then `/testbench:run` |
 | Missing health endpoint | `/shipyard:preflight` |
 | Missing CI pipeline | `/shipyard:ci-generate` |
-| Decomposition violations | `/composure:decomposition-audit` |
+| Decomposition violations | `/composure:audit` |
 | Insecure code patterns | `/sentinel:scan` |
 
 ### Manual Work (needs your input)
@@ -83,7 +83,7 @@ After each fix, report what changed. After all fixes: "For hands-on help with th
 
 After the remediation conversation:
 
-- If findings were logged: "`/composure:review-tasks` — triage findings into actionable tasks, prioritize, and optionally delegate to sub-agents"
+- If findings were logged: "`/composure:backlog` — triage findings into actionable tasks, prioritize, and optionally delegate to sub-agents"
 - If structural issues dominate: "`/composure:code-organizer` — restructure file layout to match conventions"
 - If the user wants to share results: "The HTML report is self-contained — share it with stakeholders, no dependencies needed"
 - For ongoing work: "`/composure:blueprint` — plan non-trivial fixes or features identified in the audit"

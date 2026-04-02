@@ -11,7 +11,7 @@ Create `tasks-plans/tasks.md` if missing:
 ```markdown
 # Code Quality Tasks
 
-> Auto-populated by Composure's PostToolUse hook. Process with `/review-tasks`.
+> Auto-populated by Composure's PostToolUse hook. Process with `/backlog`.
 
 ## Critical
 

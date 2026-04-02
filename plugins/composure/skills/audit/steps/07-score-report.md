@@ -149,7 +149,7 @@ What to do next:
 | If the audit found... | Suggest |
 |---|---|
 | Structural issues (misplaced files, naming violations, mixed concerns) | "`/composure:code-organizer` — restructure file layout to match framework conventions" |
-| Critical or High priority tasks | "`/composure:review-tasks batch` — process tasks sequentially, or `delegate` for parallel" |
+| Critical or High priority tasks | "`/composure:backlog batch` — process tasks sequentially, or `delegate` for parallel" |
 | Security findings (CVEs, suppressions, hardcoded secrets) | "`/sentinel:scan` — deep security analysis with OWASP rulesets" |
 | Outdated dependencies | "`/shipyard:deps-check` — safe upgrade recommendations with CVE blocking" |
 | Low test coverage | "`/testbench:generate` — generate tests for uncovered files" |

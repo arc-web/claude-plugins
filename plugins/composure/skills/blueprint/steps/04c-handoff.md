@@ -38,8 +38,8 @@ The user's response is the approval gate. When they say go, begin with the first
 
 ## Integration Notes
 
-- **Blueprint files persist across sessions** — another session can pick them up via `/review-tasks`
-- **Checklist items use `- [ ]` format** — compatible with `/review-tasks verify` and `/commit` gate
+- **Blueprint files persist across sessions** — another session can pick them up via `/backlog`
+- **Checklist items use `- [ ]` format** — compatible with `/backlog verify` and `/commit` gate
 - **The commit skill scans `tasks-plans/blueprints/*.md`** — open blueprint items are visible during commits
 - **After blueprint, the architecture docs are already loaded** — no need to invoke `/app-architecture` separately
 

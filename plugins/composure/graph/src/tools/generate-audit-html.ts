@@ -2,7 +2,7 @@
  * MCP tool: generate_audit_html
  *
  * Reads stored audit findings and scores from graph.db, fills the
- * HTML templates from skills/project-audit/templates/, and writes
+ * HTML templates from skills/report/templates/, and writes
  * a self-contained report. Zero tokens — pure template assembly.
  */
 
@@ -23,13 +23,13 @@ import type { ToolResult } from "../types.js";
 // ── Template resolution ───────────────────────────────────────────
 
 function findTemplateDir(): string | null {
-  // The templates live at skills/project-audit/templates/ relative to plugin root.
+  // The templates live at skills/report/templates/ relative to plugin root.
   // The plugin root is 3 levels up from this file (graph/src/tools/ → graph/ → composure/).
   const candidates = [
-    join(dirname(import.meta.dirname ?? __dirname), "..", "..", "skills", "project-audit", "templates"),
+    join(dirname(import.meta.dirname ?? __dirname), "..", "..", "skills", "report", "templates"),
     // Fallback: check CLAUDE_PLUGIN_ROOT
     process.env.CLAUDE_PLUGIN_ROOT
-      ? join(process.env.CLAUDE_PLUGIN_ROOT, "skills", "project-audit", "templates")
+      ? join(process.env.CLAUDE_PLUGIN_ROOT, "skills", "report", "templates")
       : "",
   ].filter(Boolean);
 
@@ -176,7 +176,7 @@ export function generateAuditHtml(params: {
     if (!templateDir) {
       return {
         status: "error",
-        error: "Cannot find audit HTML templates. Expected at skills/project-audit/templates/.",
+        error: "Cannot find audit HTML templates. Expected at skills/report/templates/.",
       };
     }
 

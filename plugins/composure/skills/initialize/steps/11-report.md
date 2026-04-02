@@ -39,9 +39,9 @@ Choose the right workflow based on how you're entering this project:
 
 ```
 Recommended orientation:
-  1. /composure:decomposition-audit --quick   → health snapshot (structure + architecture)
+  1. /composure:audit --quick                 → health snapshot (structure + architecture)
   2. entity_scope()                           → understand the domain model and entities
-  3. /composure:review-tasks                  → check for accumulated issues
+  3. /composure:backlog                       → check for accumulated issues
   4. /shipyard:preflight                      → launch readiness (env vars, endpoints, CORS)
   5. /composure:blueprint                     → plan any non-trivial changes
 ```
@@ -50,9 +50,9 @@ Recommended orientation:
 
 ```
 Resume your work:
-  1. /composure:review-tasks     → process open tasks from last session
+  1. /composure:backlog           → process open tasks from last session
   2. /composure:blueprint        → plan your next feature
-  3. /composure:review-delta     → review changes before committing
+  3. /composure:review           → review changes before committing
 ```
 
 ### Just scaffolded a new project (from Blueprint Phase 0)

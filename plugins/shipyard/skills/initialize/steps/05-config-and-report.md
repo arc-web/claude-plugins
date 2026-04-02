@@ -70,7 +70,7 @@ If `tasks-plans/tasks.md` does not exist, create it (same format as Composure fo
 ```markdown
 # CI/CD Tasks
 
-> Auto-populated by Shipyard skills and hooks. Process with /composure:review-tasks or resolve inline.
+> Auto-populated by Shipyard skills and hooks. Process with /composure:backlog or resolve inline.
 
 ## Critical
 
