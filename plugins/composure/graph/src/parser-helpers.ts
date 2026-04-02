@@ -6,8 +6,8 @@
  * Also includes module resolution for relative imports.
  */
 
-import { existsSync, statSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, resolve, join } from "node:path";
 import type { Node } from "web-tree-sitter";
 
 // ── AST node type constants ────────────────────────────────────────
@@ -191,26 +191,116 @@ export function getCallName(node: Node): string | null {
 
 // ── Module resolution ──────────────────────────────────────────────
 
+// ── Path alias resolution ─────────────────────────────────────────
+
+interface PathAlias {
+  prefix: string;   // e.g., "@/" or "~/"
+  targets: string[]; // e.g., ["./src/*"]
+}
+
+// Cache: projectRoot → aliases (avoids re-reading tsconfig per file)
+const aliasCache = new Map<string, PathAlias[]>();
+
+function loadPathAliases(projectRoot: string): PathAlias[] {
+  const cached = aliasCache.get(projectRoot);
+  if (cached) return cached;
+
+  const aliases: PathAlias[] = [];
+  const candidates = ["tsconfig.json", "tsconfig.base.json", "jsconfig.json"];
+
+  for (const name of candidates) {
+    const configPath = join(projectRoot, name);
+    if (!existsSync(configPath)) continue;
+
+    try {
+      const raw = readFileSync(configPath, "utf-8");
+      // Strip comments (tsconfig allows them)
+      const cleaned = raw.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+      const config = JSON.parse(cleaned);
+      const paths = config?.compilerOptions?.paths as Record<string, string[]> | undefined;
+      if (!paths) continue;
+
+      for (const [pattern, targets] of Object.entries(paths)) {
+        // Convert "pattern/*" → prefix "pattern/"
+        const prefix = pattern.replace(/\*$/, "");
+        aliases.push({ prefix, targets: targets.map((t) => t.replace(/\*$/, "")) });
+      }
+      break; // Use first tsconfig found
+    } catch {
+      continue;
+    }
+  }
+
+  aliasCache.set(projectRoot, aliases);
+  return aliases;
+}
+
+/** Clear the alias cache (call between full rebuilds if needed). */
+export function clearAliasCache(): void {
+  aliasCache.clear();
+}
+
+function resolveAlias(module: string, callerFilePath: string): string | null {
+  // Walk up from caller to find project root (has tsconfig.json or package.json)
+  let dir = dirname(callerFilePath);
+  let projectRoot: string | null = null;
+  for (let i = 0; i < 20; i++) {
+    if (existsSync(join(dir, "tsconfig.json")) || existsSync(join(dir, "package.json"))) {
+      projectRoot = dir;
+      break;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  if (!projectRoot) return null;
+
+  const aliases = loadPathAliases(projectRoot);
+  for (const { prefix, targets } of aliases) {
+    if (module.startsWith(prefix)) {
+      const rest = module.slice(prefix.length);
+      for (const target of targets) {
+        const resolved = resolve(projectRoot, target, rest);
+        // Try with extensions
+        const extensions = [".ts", ".tsx", ".js", ".jsx"];
+        if (existsSync(resolved) && !isDirectory(resolved)) return resolved;
+        for (const ext of extensions) {
+          if (existsSync(resolved + ext)) return resolved + ext;
+        }
+        for (const ext of extensions) {
+          const indexPath = resolve(resolved, `index${ext}`);
+          if (existsSync(indexPath)) return indexPath;
+        }
+      }
+    }
+  }
+  return null;
+}
+
 export function resolveModuleToFile(
   module: string,
   callerFilePath: string,
 ): string | null {
-  if (!module.startsWith(".")) return null;
+  // Relative imports: ./foo, ../bar
+  if (module.startsWith(".")) {
+    const callerDir = dirname(callerFilePath);
+    const base = resolve(callerDir, module);
+    const extensions = [".ts", ".tsx", ".js", ".jsx"];
 
-  const callerDir = dirname(callerFilePath);
-  const base = resolve(callerDir, module);
-  const extensions = [".ts", ".tsx", ".js", ".jsx"];
+    if (existsSync(base) && !isDirectory(base)) return base;
+    for (const ext of extensions) {
+      const target = base + ext;
+      if (existsSync(target)) return target;
+    }
+    for (const ext of extensions) {
+      const target = resolve(base, `index${ext}`);
+      if (existsSync(target)) return target;
+    }
+    return null;
+  }
 
-  if (existsSync(base) && !isDirectory(base)) return base;
-  for (const ext of extensions) {
-    const target = base + ext;
-    if (existsSync(target)) return target;
-  }
-  for (const ext of extensions) {
-    const target = resolve(base, `index${ext}`);
-    if (existsSync(target)) return target;
-  }
-  return null;
+  // Non-relative imports: check path aliases (@/, ~/, etc.)
+  return resolveAlias(module, callerFilePath);
 }
 
 function isDirectory(p: string): boolean {
