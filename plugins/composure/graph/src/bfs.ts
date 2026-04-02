@@ -6,7 +6,7 @@
 import type { GraphStore } from "./store.js";
 import type { GraphEdge, GraphNode, ImpactResult } from "./types.js";
 
-export interface AdjacencyList {
+interface AdjacencyList {
   /** source → set of target qualified names */
   forward: Map<string, Set<string>>;
   /** target → set of source qualified names */
@@ -16,7 +16,7 @@ export interface AdjacencyList {
 /**
  * Build forward and reverse adjacency lists from edge records.
  */
-export function buildAdjacencyList(edges: GraphEdge[]): AdjacencyList {
+function buildAdjacencyList(edges: GraphEdge[]): AdjacencyList {
   const forward = new Map<string, Set<string>>();
   const reverse = new Map<string, Set<string>>();
 

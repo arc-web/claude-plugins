@@ -200,3 +200,24 @@ export interface AuditSummary {
   categories: AuditScore[];
   finding_counts: Record<string, Record<string, number>>;
 }
+
+// ── Audit engine types (run-audit) ───────────────────────────────
+
+export type RecommendedAction = "split" | "split-on-next-touch" | "monitor" | "ignore";
+
+export interface Recommendation {
+  action: RecommendedAction;
+  reason: string;
+  severity: FindingSeverity;
+  impact: number;
+}
+
+export interface DbRow {
+  [key: string]: unknown;
+}
+
+export interface VulnEntry {
+  severity?: unknown;
+  via?: unknown;
+  fixAvailable?: unknown;
+}

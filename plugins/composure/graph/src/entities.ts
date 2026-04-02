@@ -15,7 +15,7 @@ import type { EntityInfo, EntityRole, EntitySource, GraphNode } from "./types.js
 
 const STRIP_PREFIXES = new Set(["user_", "admin_", "public_", "auth_"]);
 
-export function normalizeEntityName(raw: string): string {
+function normalizeEntityName(raw: string): string {
   let name = raw.toLowerCase().trim();
 
   // Strip common prefixes

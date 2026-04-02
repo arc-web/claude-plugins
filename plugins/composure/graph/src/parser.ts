@@ -92,7 +92,7 @@ export function isTreeSitterParseable(filePath: string): boolean {
   return PARSEABLE_EXTENSIONS.has(extname(filePath).toLowerCase());
 }
 
-export function detectLanguage(filePath: string): string | null {
+function detectLanguage(filePath: string): string | null {
   return EXT_TO_LANG[extname(filePath).toLowerCase()] ?? null;
 }
 
@@ -374,6 +374,38 @@ export class CodeParser {
     return firstSentence.length > 150 ? firstSentence.slice(0, 147) + "..." : firstSentence;
   }
 
+  // ── Heuristic summary from name (fallback when no JSDoc) ─────────
+
+  /**
+   * Split camelCase/PascalCase name into a lowercase search-friendly summary.
+   * Only for exported functions — internal helpers don't need indexing.
+   * Not documentation — a search index so "workspace" finds "getWorkspaceProvider".
+   */
+  private heuristicSummary(node: Node, name: string, params?: string | null): string | undefined {
+    const parent = node.parent;
+    const isExported = parent?.type === "export_statement"
+      || (parent?.type === "lexical_declaration" && parent?.parent?.type === "export_statement");
+    if (!isExported) return undefined;
+
+    // Split camelCase/PascalCase: "getWorkspaceProvider" → ["get", "workspace", "provider"]
+    const words = name
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2")
+      .toLowerCase()
+      .split(/\s+/);
+
+    if (words.length <= 1) return undefined; // Single-word names aren't useful
+
+    let summary = words.join(" ");
+
+    // Add param context for short names: "use auth" → "use auth hook"
+    if (words[0] === "use" && words.length <= 3) {
+      summary += " hook";
+    }
+
+    return summary;
+  }
+
   // ── Node handlers (called from extractFromTree) ──────────────────
 
   private handleClass(
@@ -452,13 +484,15 @@ export class CodeParser {
     const isTest = isTestFunction(name, filePath);
     const qualified = qualify(name, filePath, enclosingClass);
 
-    const summary = isTest ? undefined : this.extractJsDocSummary(child);
+    const params = getParams(child) ?? undefined;
+    const summary = isTest ? undefined
+      : (this.extractJsDocSummary(child) ?? this.heuristicSummary(child, name, params));
     nodes.push({
       kind: isTest ? "Test" : "Function", name, file_path: filePath,
       line_start: child.startPosition.row + 1,
       line_end: child.endPosition.row + 1,
       language, parent_name: enclosingClass ?? undefined,
-      params: getParams(child) ?? undefined,
+      params,
       return_type: getReturnType(child) ?? undefined,
       summary,
       is_test: isTest,
@@ -494,13 +528,15 @@ export class CodeParser {
       const isTest = isTestFunction(name, filePath);
       const qualified = qualify(name, filePath, enclosingClass);
 
-      const summary = isTest ? undefined : this.extractJsDocSummary(child);
+      const arrowParams = getParams(valueNode) ?? undefined;
+      const summary = isTest ? undefined
+        : (this.extractJsDocSummary(child) ?? this.heuristicSummary(child, name, arrowParams));
       nodes.push({
         kind: isTest ? "Test" : "Function", name, file_path: filePath,
         line_start: valueNode.startPosition.row + 1,
         line_end: valueNode.endPosition.row + 1,
         language, parent_name: enclosingClass ?? undefined,
-        params: getParams(valueNode) ?? undefined,
+        params: arrowParams,
         return_type: getReturnType(valueNode) ?? undefined,
         summary,
         is_test: isTest,
