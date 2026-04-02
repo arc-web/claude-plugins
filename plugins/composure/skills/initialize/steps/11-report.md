@@ -11,6 +11,7 @@ Stack detected:
   - TypeScript 5.9 (strict) -- apps/web, apps/mobile
   - Python 3.12 + FastAPI 0.115 -- services/api
   - Go 1.23 -- services/worker
+  - Kubernetes (K3s 1.30) -- deploy/, infra/
   - Monorepo (pnpm workspaces)
 
 Generated:

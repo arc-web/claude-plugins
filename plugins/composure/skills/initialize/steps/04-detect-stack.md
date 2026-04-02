@@ -52,6 +52,13 @@ Build a stack profile:
       "frontend": null,
       "backend": "stdlib",
       "versions": { "go": "1.23" }
+    },
+    "infra": {
+      "paths": ["deploy/", "infra/"],
+      "frontend": null,
+      "backend": null,
+      "infra": "kubernetes",
+      "versions": { "k3s": "1.30" }
     }
   },
   "typegenScript": "pnpm --filter @myapp/database generate"
@@ -90,9 +97,23 @@ Build a stack profile:
 | Raw `pg` / `postgres` / `mysql2` / `mongoose` | `"postgresql"` / `"mysql"` / `"mongodb"` |
 | None detected | `null` |
 
+**Infra detection rules** (check for files at project root or in subdirectories):
+
+| File / Pattern | `infra` value |
+|----------------|--------------|
+| `*.yaml` with `apiVersion:` + `kind:` (K8s manifests) | `"kubernetes"` |
+| `k3s.yaml` or `k3s/` directory | `"kubernetes"` |
+| `helmfile.yaml` or `Chart.yaml` | `"helm"` |
+| `*.tf` files | `"terraform"` |
+| `playbook.yml` or `ansible.cfg` or `roles/` | `"ansible"` |
+| `docker-compose.yml` or `docker-compose.yaml` | `"docker-compose"` |
+| `Dockerfile` only (no compose/K8s) | `"docker"` |
+| `Pulumi.yaml` | `"pulumi"` |
+| None detected | `null` |
+
 **Supabase is a backend, not just a client SDK.** When `@supabase/supabase-js` is detected, create a separate `"supabase"` entry in `frameworks` — this routes to `backend/supabase/` docs (RLS policies, auth helpers, realtime, edge functions). The `supabase-js` version can also appear in the frontend's `versions` for client-side reference, but the backend entry is what loads the database patterns.
 
-**A project can have BOTH a frontend backend and a data backend.** For example, Next.js (frontend: `"nextjs"`) + Supabase (backend: `"supabase"`) are separate framework entries — they don't conflict.
+**A project can have BOTH a frontend backend and a data backend.** **A project can also have BOTH application code and infrastructure.** For example, a Next.js app (frontend: `"nextjs"`) with K8s deployment manifests (infra: `"kubernetes"`) — these are separate framework entries. The `infra` entry routes to `infra/` architecture docs covering manifest organization, GitOps patterns, and secret management. For example, Next.js (frontend: `"nextjs"`) + Supabase (backend: `"supabase"`) are separate framework entries — they don't conflict.
 
 **Important**: In monorepos, different paths may have different frontends. When `paths` includes both `apps/web` (Next.js) and `apps/mobile` (Expo), split into separate entries:
 

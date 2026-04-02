@@ -26,6 +26,7 @@ Match changed files to the right architecture category:
 | React Native, Expo, mobile screens | `mobile/` | Expo, Kotlin, Swift guides |
 | AI SDK, external SDK integrations | `sdks/` | AI SDK validation rules, SDK integration patterns |
 | Third-party SDK, API client, webhook handler | `integration-builder/` | Integration tiers, auth patterns, webhook patterns, error handling, testing |
+| K8s manifests, Dockerfiles, Terraform, Helm, IaC configs | `infra/` | GitOps patterns, manifest organization, secret management, environment promotion |
 
 If changed files span multiple categories (e.g., a feature touches both `frontend/` and `backend/`), load both.
 

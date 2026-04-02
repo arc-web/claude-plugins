@@ -23,6 +23,13 @@ Create `.claude/no-bandaids.json`:
       "frontend": null,
       "backend": "fastapi",
       "versions": { "python": "3.12", "fastapi": "0.115" }
+    },
+    "infra": {
+      "paths": ["deploy/", "infra/"],
+      "frontend": null,
+      "backend": null,
+      "infra": "kubernetes",
+      "versions": { "k3s": "1.30" }
     }
   },
   "generatedRefsRoot": ".claude/frameworks"
@@ -57,7 +64,7 @@ Create `.claude/no-bandaids.json`:
 
 Merge this into the same `.claude/no-bandaids.json` file alongside the `frameworks` field. The `frameworkValidation` section is read by `no-bandaids.sh` at PreToolUse time and blocks writes that violate the patterns.
 
-The `frameworks` field tells `no-bandaids.sh` which rules to apply based on file path and extension. The `frontend` and `backend` fields control which reference docs and architecture patterns get loaded — preventing Next.js patterns from bleeding into Vite projects, and vice versa.
+The `frameworks` field tells `no-bandaids.sh` which rules to apply based on file path and extension. The `frontend`, `backend`, and `infra` fields control which reference docs and architecture patterns get loaded — preventing Next.js patterns from bleeding into Vite projects, Terraform patterns from appearing in Kubernetes-only projects, and vice versa.
 
 `generatedRefsRoot` points to where Context7-generated docs live for this project. For user projects this is `.claude/frameworks/` (project-level). For the composure plugin repo itself, it's `skills/app-architecture/`. Generated docs are distributed into `frontend/`, `fullstack/`, `mobile/`, or `backend/` subfolders based on the library-to-path mapping in Step 3.
 
