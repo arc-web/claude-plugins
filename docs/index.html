@@ -133,30 +133,185 @@ blockquote::before { content:'\201C'; position:absolute; left:0; top:-10px; font
 <div id="slides">
 <div class="slide active" id="slide-1">
     
-    <div class="blob" style="width:410.27000490859245px;height:476.53932530745135px;background:var(--primary);top:-110.954285257153px;right:-62.34452797826446px;opacity:0.07"></div>
-    <div class="blob" style="width:327.9585337505177px;height:400.6720046330322px;background:var(--accent);bottom:-107.24744299268957px;left:-40.133620026986364px;opacity:0.06"></div>
+    <div class="blob" style="width:490.08535013873757px;height:569.7976287225982px;background:var(--primary);top:-101.95040628866278px;right:-72.37631051104667px;opacity:0.07"></div>
+    <div class="blob" style="width:358.7965024445168px;height:324.29459946315427px;background:var(--accent);bottom:-98.87128765596775px;right:-52.8083166444731px;opacity:0.06"></div>
     <div class="slide-content">
       <div class="hero-badge">ARC Web</div>
-      <h1>Claude Plugins<br><span class="grad">Code quality at AI scale.</span></h1>
-      <div class="sub">Code quality hooks, knowledge graph, impact-aware reviews, decomposition enforcement.</div>
-      <div class="tags-row"><span class="tag">Claude Code</span><span class="tag">Plugins</span><span class="tag">Code Quality</span></div>
+      <h1>Claude Plugins<br><span class="grad">TypeScript</span></h1>
+      <div class="sub"><a href="https://arc-web.github.io/claude-plugins/"></div>
+      <div class="tags-row"><span class="tag">TypeScript</span><span class="tag">Open Source</span></div>
     </div>
   </div>
 
 <div class="slide" id="slide-2">
     
-    <div class="blob" style="width:490.32050637529767px;height:482.83474680562074px;background:var(--primary);top:-104.80455721795548px;right:-116.49809421653562px;opacity:0.07"></div>
-    <div class="blob" style="width:348.73859949239716px;height:441.32221921319217px;background:var(--accent);bottom:-98.33342318139111px;left:-56.24627117289092px;opacity:0.06"></div>
+    <div class="blob" style="width:405.56867245704206px;height:465.5651812637503px;background:var(--primary);top:-139.67412867495665px;right:-74.76098304422776px;opacity:0.07"></div>
+    <div class="blob" style="width:367.1706820177179px;height:400.21251267992824px;background:var(--accent);bottom:-77.61619500493944px;left:-53.99326762235538px;opacity:0.06"></div>
     <div class="slide-content">
-      <blockquote>Stop babysitting your AI.<br><span class="grad">Let the plugins do it.</span></blockquote>
+      <div class="eyebrow">The problem</div>
+      <h2>What's <span class="grad">broken</span> without this</h2>
+      <div class="line"></div>
+      <div class="cards">
+    <div class="card">
+      <span class="card-icon">🚫</span>
+      <div class="card-title">AI bypasses your code standards</div>
+      <div class="card-desc">Claude ignores CLAUDE.md rules under token pressure, shipping `as any` and `@ts-ignore` instead of fixing root causes.</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">📦</span>
+      <div class="card-title">Monolithic files accumulate fast</div>
+      <div class="card-desc">Components balloon to 800+ lines because the agent optimizes for completion speed, not maintainability.</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔓</span>
+      <div class="card-title">Security patterns slip through</div>
+      <div class="card-desc">Hardcoded secrets, SQL injection vectors, and unsafe deserialization patterns reach production because LLM reviews miss them.</div>
+    </div></div>
+    </div>
+  </div>
+
+<div class="slide" id="slide-3">
+    
+    <div class="blob" style="width:496.38766900709516px;height:509.82159809085533px;background:var(--primary);top:-87.36075283953082px;left:-80.5138500794003px;opacity:0.07"></div>
+    <div class="blob" style="width:397.62501729051274px;height:416.41041429600597px;background:var(--accent);bottom:-115.26406679240382px;left:-76.55756318797782px;opacity:0.06"></div>
+    <div class="slide-content">
+      <div class="eyebrow">The difference</div>
+      <h2>Why it <span class="grad">matters</span></h2>
+      
+      <div class="compare">
+        <div class="compare-col bad">
+      <div class="compare-head"><span class="cross">✗</span> Without</div>
+      <div class="compare-item">Manual work</div><div class="compare-item">Slow iteration</div><div class="compare-item">Repeated mistakes</div>
+    </div>
+        <div class="compare-col good">
+      <div class="compare-head"><span class="check">✓</span> With this</div>
+      <div class="compare-item">Runs outside the LLM—agent cannot negotiate or ignore enforcement</div><div class="compare-item">Catches band-aid patterns: `as any`, `@ts-ignore`, non-null assertions before they merge</div><div class="compare-item">Enforces file decomposition: blocks components over 400 lines, suggests split points</div><div class="compare-item">Detects 8 indexed languages; TypeScript-first with Python, Go, Rust support</div><div class="compare-item">Knowledge graph tracks cross-file dependencies; prevents sub-agent races on shared types</div><div class="compare-item">Security hooks flag hardcoded secrets, eval patterns, SQL injection vectors</div>
+    </div>
+      </div>
+    </div>
+  </div>
+
+<div class="slide" id="slide-4">
+    
+    <div class="blob" style="width:461.278701693257px;height:516.155986786741px;background:var(--primary);top:-95.1886264364071px;right:-118.61588915475852px;opacity:0.07"></div>
+    <div class="blob" style="width:389.44305063034744px;height:421.39203568730335px;background:var(--accent);bottom:-90.28737429625446px;left:-77.44465679794138px;opacity:0.06"></div>
+    <div class="slide-content">
+      <div class="eyebrow">Under the hood</div>
+      <h2>How it <span class="grad">works</span></h2>
+      
+      <div class="flow">
+    <div class="flow-step">
+      <div class="flow-icon" style="background:rgba(123,47,190,0.12);border:1px solid rgba(123,47,190,0.2)">📝</div>
+      <div class="flow-body">
+        <div class="flow-title">Agent writes code</div>
+        <div class="flow-desc">Claude Code generates TypeScript, runs linters, commits changes.</div>
+        
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon" style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.2)">🪝</div>
+      <div class="flow-body">
+        <div class="flow-title">Hooks intercept at boundaries</div>
+        <div class="flow-desc">20 automated shell scripts run on Read/Edit/Write operations—outside the LLM, zero token cost, impossible to bypass.</div>
+        
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2)">✅</div>
+      <div class="flow-body">
+        <div class="flow-title">Enforcement or rejection</div>
+        <div class="flow-desc">Type safety checks, file size limits, security pattern detection, and decomposition rules either auto-fix violations or block commits.</div>
+        
+      </div>
+    </div></div>
+    </div>
+  </div>
+
+<div class="slide" id="slide-5">
+    
+    <div class="blob" style="width:531.1632773536927px;height:449.7642628805389px;background:var(--primary);top:-115.65628924533951px;right:-70.60651977896651px;opacity:0.07"></div>
+    <div class="blob" style="width:308.26500452464336px;height:363.1743779786445px;background:var(--accent);bottom:-64.43370913512791px;right:-79.19259377890427px;opacity:0.06"></div>
+    <div class="slide-content">
+      <div class="eyebrow">What it does</div>
+      <h2>Core <span class="grad">capabilities</span></h2>
+      <div class="line"></div>
+      <div class="cards">
+    <div class="card">
+      <span class="card-icon">⚡</span>
+      <div class="card-title">Fast</div>
+      <div class="card-desc">Optimized for speed and efficiency.</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🎯</span>
+      <div class="card-title">Reliable</div>
+      <div class="card-desc">Built to work consistently.</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔌</span>
+      <div class="card-title">Integrates</div>
+      <div class="card-desc">Works with your existing tools.</div>
+    </div></div>
+    </div>
+  </div>
+
+<div class="slide" id="slide-6">
+    
+    <div class="blob" style="width:574.5864727535561px;height:444.77415353860755px;background:var(--primary);top:-123.00642429520458px;right:-100.44344680208803px;opacity:0.07"></div>
+    <div class="blob" style="width:338.80898025223456px;height:305.36604353316403px;background:var(--accent);bottom:-69.22095839676689px;right:-54.778152252587454px;opacity:0.06"></div>
+    <div class="slide-content">
+      <blockquote>I got tired of Claude shipping 600-line components with `as any` everywhere. These hooks make it impossible—the agent literally cannot commit code that violates them.</blockquote>
       <div class="line" style="margin-top:48px"></div>
       <div class="sub">arc-web/claude-plugins</div>
+    </div>
+  </div>
+
+<div class="slide" id="slide-7">
+    
+    <div class="blob" style="width:490.0290835342106px;height:572.9823813551654px;background:var(--primary);top:-151.80106444595285px;right:-62.942676376905226px;opacity:0.07"></div>
+    <div class="blob" style="width:349.4068646744177px;height:364.74801085630054px;background:var(--accent);bottom:-68.56131876823613px;right:-67.8008493006037px;opacity:0.06"></div>
+    <div class="slide-content">
+      <div class="eyebrow">Codebase</div>
+      <h2>Built with <span class="grad">care</span></h2>
+      <div class="line"></div>
+      <div class="cards">
+    <div class="card">
+      <span class="card-icon">💻</span>
+      <div class="card-title">TypeScript</div>
+      <div class="card-desc">Built in TypeScript for type safety and reliability.</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🏗️</span>
+      <div class="card-title">Architecture</div>
+      <div class="card-desc">Configuration Tool</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">📦</span>
+      <div class="card-title">Key deps</div>
+      <div class="card-desc">See repository</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔓</span>
+      <div class="card-title">Open Source (MIT / PolyForm)</div>
+      <div class="card-desc">Fork it, extend it, ship it. It's yours.</div>
+    </div></div>
+    </div>
+  </div>
+
+<div class="slide" id="slide-8">
+    
+    <div class="blob" style="width:570.2231249491953px;height:515.7510515444843px;background:var(--primary);top:-136.04578012883303px;right:-61.48153339253542px;opacity:0.07"></div>
+    <div class="blob" style="width:440.50373265081384px;height:429.1833795986443px;background:var(--accent);bottom:-89.54181649884194px;left:-54.97753939400976px;opacity:0.06"></div>
+    <div class="slide-content">
+      <div class="eyebrow">Built by</div>
+      <h2>Mike Ensor<br><span class="grad">Arc Web</span></h2>
+      <div class="sub">AI automation, marketing technology, building tools that work.</div>
+      <div class="body-text">Mike builds open-source AI tools for agencies, marketers, and operators who are done waiting for software to catch up. All Arc Web projects are open source by default — fork them, extend them, ship them.</div>
     </div>
   </div>
 </div>
 
 <div id="nav"></div>
-<div id="counter">1 / 2</div>
+<div id="counter">1 / 8</div>
 <div id="hint">\u2190 \u2192 arrow keys to navigate</div>
 
 <script>
